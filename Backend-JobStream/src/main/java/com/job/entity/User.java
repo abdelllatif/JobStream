@@ -1,5 +1,6 @@
 package com.job.entity;
 
+import com.job.enums.Role;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
