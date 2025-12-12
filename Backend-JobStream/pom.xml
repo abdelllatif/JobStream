@@ -6,14 +6,16 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.9-SNAPSHOT</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.Job.JobStream</groupId>
 	<artifactId>JobStream</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>JobStream</name>
-	<description>JobStream</description>
-	<url/>
+    <name>JobStream</name>
+    <description>
+        JobStream est une plateforme web moderne de recrutement qui connecte candidats, entreprises et recruteurs via une interface simple et professionnelle, avec des fonctionnalités premium.
+    </description>
+    <url/>
 	<licenses>
 		<license/>
 	</licenses>
