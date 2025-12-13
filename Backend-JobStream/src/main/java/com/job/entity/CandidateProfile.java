@@ -1,5 +1,6 @@
 package com.job.entity;
 import jakarta.persistence.*;
+import java.util.List;
 @Entity
 @Table(name = "candidate_profiles")
 public class CandidateProfile {
