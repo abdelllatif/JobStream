@@ -1,4 +1,8 @@
 package com.job.service;
 
-public class UserService {
+import com.job.dto.request.UserRequestDTO;
+import com.job.dto.response.UserResponseDTO;
+
+public interface UserService {
+    UserResponseDTO register(UserRequestDTO dto);
 }
