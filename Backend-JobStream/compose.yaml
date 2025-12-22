@@ -3,12 +3,12 @@ version: "3.9"
 services:
   db:
     image: postgres:15
-    container_name: postgres-db
+    container_name: postgres-jobstream
     restart: always
     environment:
-      POSTGRES_DB: JobStream
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
+       POSTGRES_DB: ${POSTGRES_DB}
+       POSTGRES_USER: ${POSTGRES_USER}
+       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -16,7 +16,7 @@ services:
 
   backend:
     build: .
-    container_name: spring-app
+    container_name: spring-jobstream
     restart: always
     depends_on:
       - db
@@ -31,7 +31,7 @@ services:
       - ./uploads:/uploads
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: pgadmin2
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
