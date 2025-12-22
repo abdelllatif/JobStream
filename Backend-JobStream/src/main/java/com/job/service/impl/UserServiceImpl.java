@@ -1,6 +1,5 @@
 package com.job.service.impl;
 
-import com.job.dto.request.UserRequestDTO;
 import com.job.dto.response.UserResponseDTO;
 import com.job.entity.User;
 import com.job.mapper.UserMapper;

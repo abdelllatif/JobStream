@@ -18,7 +18,6 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // User-related exceptions
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(
             UserNotFoundException ex, WebRequest request) {
@@ -58,7 +57,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    // Job-related exceptions
     @ExceptionHandler(JobNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleJobNotFoundException(
             JobNotFoundException ex, WebRequest request) {
@@ -72,7 +70,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    // Application-related exceptions
     @ExceptionHandler(ApplicationNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleApplicationNotFoundException(
             ApplicationNotFoundException ex, WebRequest request) {
@@ -99,7 +96,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    // Company-related exceptions
     @ExceptionHandler(CompanyNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCompanyNotFoundException(
             CompanyNotFoundException ex, WebRequest request) {
@@ -113,7 +109,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    // Authorization exceptions
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(
             AccessDeniedException ex, WebRequest request) {
@@ -140,7 +135,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
-    // File-related exceptions
     @ExceptionHandler(FileStorageException.class)
     public ResponseEntity<ErrorResponse> handleFileStorageException(
             FileStorageException ex, WebRequest request) {
@@ -167,7 +161,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    // Spring Security exceptions
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(
             BadCredentialsException ex, WebRequest request) {
@@ -181,7 +174,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
-    // Validation exceptions
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(
             MethodArgumentNotValidException ex, WebRequest request) {
@@ -216,7 +208,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    // Generic runtime exception
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(
             RuntimeException ex, WebRequest request) {
@@ -230,7 +221,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Generic exception handler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(
             Exception ex, WebRequest request) {

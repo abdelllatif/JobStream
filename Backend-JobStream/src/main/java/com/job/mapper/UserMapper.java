@@ -1,6 +1,5 @@
 package com.job.mapper;
 
-import com.job.dto.request.UserRequestDTO;
 import com.job.dto.response.UserResponseDTO;
 import com.job.entity.User;
 import org.mapstruct.Mapper;
