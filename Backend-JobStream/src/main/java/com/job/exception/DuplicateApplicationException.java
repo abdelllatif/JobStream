@@ -10,3 +10,4 @@ public class DuplicateApplicationException extends RuntimeException {
     }
 }
 
+
