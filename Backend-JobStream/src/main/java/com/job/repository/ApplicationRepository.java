@@ -7,3 +7,4 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
 }
 
 
+
