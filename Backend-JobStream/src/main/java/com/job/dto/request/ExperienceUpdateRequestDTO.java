@@ -8,6 +8,7 @@ import java.time.LocalDate;
 public class ExperienceUpdateRequestDTO {
 
     private String title;
+    private Long candidateProfileId;
     private String company;
     private LocalDate startDate;
     private LocalDate endDate;

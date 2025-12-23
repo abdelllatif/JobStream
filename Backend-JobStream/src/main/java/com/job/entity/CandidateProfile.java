@@ -1,7 +1,10 @@
 package com.job.entity;
 import jakarta.persistence.*;
 import java.util.List;
+import lombok.Data;
+
 @Entity
+@Data
 @Table(name = "candidate_profiles")
 public class CandidateProfile {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

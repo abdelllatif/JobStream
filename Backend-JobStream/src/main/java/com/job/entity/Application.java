@@ -4,7 +4,10 @@ package com.job.entity;
 import com.job.enums.ApplicationStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Data;
+
 @Entity
+@Data
 @Table(name = "applications")
 public class Application {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

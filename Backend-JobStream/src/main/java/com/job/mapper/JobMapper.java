@@ -10,19 +10,15 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface JobMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "domain", ignore = true)
-    @Mapping(target = "applications", ignore = true)
     @Mapping(target = "tags", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Job toEntity(JobCreateRequestDTO dto);
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "company", ignore = true)
     @Mapping(target = "domain", ignore = true)
-    @Mapping(target = "applications", ignore = true)
     @Mapping(target = "tags", ignore = true)
     @Mapping(target = "postedAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

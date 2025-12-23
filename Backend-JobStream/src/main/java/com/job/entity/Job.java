@@ -3,8 +3,10 @@ package com.job.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.Data;
 
 @Entity
+@Data
 @Table(name = "jobs")
 public class Job {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

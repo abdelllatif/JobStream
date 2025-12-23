@@ -10,11 +10,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface EducationMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "candidateProfile", ignore = true)
     Education toEntity(EducationCreateRequestDTO dto);
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "candidateProfile", ignore = true)
     Education toEntity(EducationUpdateRequestDTO dto);
 

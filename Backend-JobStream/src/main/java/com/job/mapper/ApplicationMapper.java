@@ -10,14 +10,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ApplicationMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidateProfile", ignore = true)
     @Mapping(target = "job", ignore = true)
     @Mapping(target = "appliedAt", ignore = true)
     Application toEntity(ApplicationCreateRequestDTO dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidateProfile", ignore = true)
     @Mapping(target = "job", ignore = true)
     @Mapping(target = "appliedAt", ignore = true)
     Application toEntity(ApplicationUpdateRequestDTO dto);

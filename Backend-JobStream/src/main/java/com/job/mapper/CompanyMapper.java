@@ -10,12 +10,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CompanyMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "jobs", ignore = true)
     Company toEntity(CompanyCreateRequestDTO dto);
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "jobs", ignore = true)
     Company toEntity(CompanyUpdateRequestDTO dto);

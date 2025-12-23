@@ -10,11 +10,9 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ExperienceMapper {
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "candidateProfile", ignore = true)
     Experience toEntity(ExperienceCreateRequestDTO dto);
 
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "candidateProfile", ignore = true)
     Experience toEntity(ExperienceUpdateRequestDTO dto);
 
