@@ -1,6 +1,6 @@
 package com.job.service.impl;
 
-import com.job.dto.request.UserRequestDTO;
+import com.job.dto.request.UserCreateRequestDTO;
 import com.job.dto.response.UserResponseDTO;
 import com.job.entity.User;
 import com.job.mapper.UserMapper;
@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserResponseDTO register(UserRequestDTO dto) {
+    public UserResponseDTO register(UserCreateRequestDTO dto) {
 
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email already exists");

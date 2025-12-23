@@ -1,0 +1,481 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001-initial-schema
+      author: junie
+      changes:
+        # USERS
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    unique: true
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+              - column:
+                  name: role
+                  type: VARCHAR(50)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              ALTER TABLE users ADD CONSTRAINT chk_users_role CHECK (role IN ('CANDIDATE','RECRUITER','ADMIN'));
+
+        # CANDIDATE PROFILES
+        - createTable:
+            tableName: candidate_profiles
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: phone
+                  type: VARCHAR(100)
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: summary
+                  type: TEXT
+              - column:
+                  name: cv_url
+                  type: VARCHAR(500)
+        - addUniqueConstraint:
+            tableName: candidate_profiles
+            columnNames: user_id
+            constraintName: uq_candidate_profiles_user
+        - addForeignKeyConstraint:
+            baseTableName: candidate_profiles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_candidate_profiles_user
+            onDelete: CASCADE
+
+        # COMPANIES
+        - createTable:
+            tableName: companies
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: website
+                  type: VARCHAR(255)
+              - column:
+                  name: logo_url
+                  type: VARCHAR(500)
+              - column:
+                  name: user_id
+                  type: BIGINT
+        - addUniqueConstraint:
+            tableName: companies
+            columnNames: user_id
+            constraintName: uq_companies_user
+        - addForeignKeyConstraint:
+            baseTableName: companies
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_companies_user
+            onDelete: CASCADE
+
+        # JOBS
+        - createTable:
+            tableName: jobs
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: location
+                  type: VARCHAR(255)
+              - column:
+                  name: contract_type
+                  type: VARCHAR(100)
+              - column:
+                  name: posted_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+              - column:
+                  name: company_id
+                  type: BIGINT
+              - column:
+                  name: domain_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: jobs
+            baseColumnNames: company_id
+            referencedTableName: companies
+            referencedColumnNames: id
+            constraintName: fk_jobs_company
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: jobs
+            baseColumnNames: domain_id
+            referencedTableName: domains
+            referencedColumnNames: id
+            constraintName: fk_jobs_domain
+            onDelete: SET NULL
+
+        # TAGS
+        - createTable:
+            tableName: tags
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+
+        # JOB_TAGS (Join table)
+        - createTable:
+            tableName: job_tags
+            columns:
+              - column:
+                  name: job_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: tag_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: job_tags
+            columnNames: job_id, tag_id
+            constraintName: pk_job_tags
+        - addForeignKeyConstraint:
+            baseTableName: job_tags
+            baseColumnNames: job_id
+            referencedTableName: jobs
+            referencedColumnNames: id
+            constraintName: fk_job_tags_job
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: job_tags
+            baseColumnNames: tag_id
+            referencedTableName: tags
+            referencedColumnNames: id
+            constraintName: fk_job_tags_tag
+            onDelete: CASCADE
+
+        # APPLICATIONS
+        - createTable:
+            tableName: applications
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: candidate_profile_id
+                  type: BIGINT
+              - column:
+                  name: job_id
+                  type: BIGINT
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+              - column:
+                  name: applied_at
+                  type: TIMESTAMP
+        - addForeignKeyConstraint:
+            baseTableName: applications
+            baseColumnNames: candidate_profile_id
+            referencedTableName: candidate_profiles
+            referencedColumnNames: id
+            constraintName: fk_applications_candidate
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: applications
+            baseColumnNames: job_id
+            referencedTableName: jobs
+            referencedColumnNames: id
+            constraintName: fk_applications_job
+            onDelete: CASCADE
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              ALTER TABLE applications ADD CONSTRAINT chk_applications_status CHECK (status IN ('PENDING','ACCEPTED','REJECTED'));
+
+        # EDUCATIONS
+        - createTable:
+            tableName: educations
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: school
+                  type: VARCHAR(255)
+              - column:
+                  name: degree
+                  type: VARCHAR(255)
+              - column:
+                  name: start_date
+                  type: DATE
+              - column:
+                  name: end_date
+                  type: DATE
+              - column:
+                  name: candidate_profile_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: educations
+            baseColumnNames: candidate_profile_id
+            referencedTableName: candidate_profiles
+            referencedColumnNames: id
+            constraintName: fk_educations_candidate
+            onDelete: CASCADE
+
+        # EXPERIENCES
+        - createTable:
+            tableName: experiences
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+              - column:
+                  name: company
+                  type: VARCHAR(255)
+              - column:
+                  name: start_date
+                  type: DATE
+              - column:
+                  name: end_date
+                  type: DATE
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: candidate_profile_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: experiences
+            baseColumnNames: candidate_profile_id
+            referencedTableName: candidate_profiles
+            referencedColumnNames: id
+            constraintName: fk_experiences_candidate
+            onDelete: CASCADE
+
+        # SKILLS
+        - createTable:
+            tableName: skills
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(100)
+              - column:
+                  name: level
+                  type: INTEGER
+              - column:
+                  name: candidate_profile_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: skills
+            baseColumnNames: candidate_profile_id
+            referencedTableName: candidate_profiles
+            referencedColumnNames: id
+            constraintName: fk_skills_candidate
+            onDelete: CASCADE
+
+        # MESSAGES
+        - createTable:
+            tableName: messages
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: content
+                  type: TEXT
+              - column:
+                  name: sent_at
+                  type: TIMESTAMP
+              - column:
+                  name: sender_id
+                  type: BIGINT
+              - column:
+                  name: receiver_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: messages
+            baseColumnNames: sender_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_messages_sender
+            onDelete: SET NULL
+        - addForeignKeyConstraint:
+            baseTableName: messages
+            baseColumnNames: receiver_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_messages_receiver
+            onDelete: SET NULL
+
+        # NOTIFICATIONS
+        - createTable:
+            tableName: notifications
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: message
+                  type: TEXT
+              - column:
+                  name: read
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: candidate_profile_id
+                  type: BIGINT
+        - addForeignKeyConstraint:
+            baseTableName: notifications
+            baseColumnNames: candidate_profile_id
+            referencedTableName: candidate_profiles
+            referencedColumnNames: id
+            constraintName: fk_notifications_candidate
+            onDelete: CASCADE
+
+        # PAYMENTS
+        - createTable:
+            tableName: payments
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: paid_at
+                  type: TIMESTAMP
+              - column:
+                  name: paypal_transaction_id
+                  type: VARCHAR(255)
+              - column:
+                  name: success
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+        - addForeignKeyConstraint:
+            baseTableName: payments
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_payments_user
+            onDelete: SET NULL
+
+        # DOMAINS
+        - createTable:
+            tableName: domains
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)

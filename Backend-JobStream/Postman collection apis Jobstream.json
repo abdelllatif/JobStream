@@ -1,0 +1,216 @@
+{
+  "info": {
+    "name": "JobStream API",
+    "_postman_id": "b6d0c6c0-0000-4000-8000-jobstream-collection",
+    "description": "JobStream endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123!\",\n  \"role\": \"CANDIDATE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Create Job",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/jobs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Backend Engineer\",\n  \"description\": \"Build APIs\",\n  \"location\": \"Remote\",\n  \"contractType\": \"Full-time\",\n  \"companyId\": 1,\n  \"domainId\": 1\n}"
+            }
+          }
+        },
+        { "name": "Get Job by ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/jobs/1" } },
+        { "name": "List Jobs", "request": { "method": "GET", "url": "{{baseUrl}}/api/jobs" } },
+        {
+          "name": "Update Job",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/jobs/1",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Backend Engineer II\",\n  \"active\": true\n}" }
+          }
+        },
+        { "name": "Delete Job", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/jobs/1" } }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Create Application",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/applications",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidateProfileId\": 1,\n  \"jobId\": 1,\n  \"status\": \"PENDING\"\n}"
+            }
+          }
+        },
+        { "name": "Get Application by ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/applications/1" } },
+        { "name": "List Applications", "request": { "method": "GET", "url": "{{baseUrl}}/api/applications" } },
+        {
+          "name": "Update Application",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/applications/1",
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"APPROVED\"\n}" }
+          }
+        },
+        { "name": "Delete Application", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/applications/1" } }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "Create Company",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/companies",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Inc\",\n  \"description\": \"We build stuff\",\n  \"website\": \"https://acme.com\",\n  \"logoUrl\": \"https://acme.com/logo.png\",\n  \"userId\": 2\n}"
+            }
+          }
+        },
+        { "name": "Get Company by ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/companies/1" } },
+        { "name": "List Companies", "request": { "method": "GET", "url": "{{baseUrl}}/api/companies" } },
+        {
+          "name": "Update Company",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/companies/1",
+            "body": { "mode": "raw", "raw": "{\n  \"description\": \"We build great stuff\"\n}" }
+          }
+        },
+        { "name": "Delete Company", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/companies/1" } }
+      ]
+    },
+    {
+      "name": "Candidate Profiles",
+      "item": [
+        {
+          "name": "Create CandidateProfile",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/candidate-profiles",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"phone\": \"+123456789\",\n  \"address\": \"123 Main St\",\n  \"summary\": \"Backend dev\",\n  \"cvUrl\": \"https://cv.example.com/john\"\n}"
+            }
+          }
+        },
+        { "name": "Get CandidateProfile by ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/candidate-profiles/1" } },
+        { "name": "List CandidateProfiles", "request": { "method": "GET", "url": "{{baseUrl}}/api/candidate-profiles" } },
+        {
+          "name": "Update CandidateProfile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/candidate-profiles/1",
+            "body": { "mode": "raw", "raw": "{\n  \"summary\": \"Senior backend dev\"\n}" }
+          }
+        },
+        { "name": "Delete CandidateProfile", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/candidate-profiles/1" } }
+      ]
+    },
+    {
+      "name": "Educations",
+      "item": [
+        {
+          "name": "Create Education",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/educations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidateProfileId\": 1,\n  \"school\": \"Uni X\",\n  \"degree\": \"BSc CS\",\n  \"startDate\": \"2020-01-01\",\n  \"endDate\": \"2023-01-01\"\n}"
+            }
+          }
+        },
+        { "name": "Get Education by ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/educations/1" } },
+        { "name": "List Educations", "request": { "method": "GET", "url": "{{baseUrl}}/api/educations" } },
+        {
+          "name": "Update Education",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/educations/1",
+            "body": { "mode": "raw", "raw": "{\n  \"degree\": \"MSc CS\"\n}" }
+          }
+        },
+        { "name": "Delete Education", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/educations/1" } }
+      ]
+    },
+    {
+      "name": "Experiences",
+      "item": [
+        {
+          "name": "Create Experience",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/experiences",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidateProfileId\": 1,\n  \"title\": \"Engineer\",\n  \"company\": \"Acme\",\n  \"startDate\": \"2022-01-01\",\n  \"description\": \"Built APIs\"\n}"
+            }
+          }
+        },
+        { "name": "Get Experience by ID", "request": { "method": "GET", "url": "{{baseUrl}}/api/experiences/1" } },
+        { "name": "List Experiences", "request": { "method": "GET", "url": "{{baseUrl}}/api/experiences" } },
+        {
+          "name": "Update Experience",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/experiences/1",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Senior Engineer\"\n}" }
+          }
+        },
+        { "name": "Delete Experience", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/experiences/1" } }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ]
+}

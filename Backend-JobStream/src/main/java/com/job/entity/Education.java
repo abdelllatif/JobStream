@@ -2,7 +2,10 @@ package com.job.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import lombok.Data;
+
 @Entity
+@Data
 @Table(name = "educations")
 public class Education {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
