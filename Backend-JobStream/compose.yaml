@@ -3,42 +3,39 @@ version: "3.9"
 services:
   db:
     image: postgres:15
-    container_name: postgres-jobstream
+    container_name: jobstream-db-new
     restart: always
-    environment:
-       POSTGRES_DB: ${POSTGRES_DB}
-       POSTGRES_USER: ${POSTGRES_USER}
-       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - jobstream-data-new:/var/lib/postgresql/data
 
   backend:
-    build: .
-    container_name: spring-jobstream
+    build:
+    container_name: spring-jobstream-new
     restart: always
     depends_on:
       - db
-    environment:
-      - DB_URL=${DB_URL}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET}
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     volumes:
       - ./uploads:/uploads
+
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin2
+    container_name: pgadmin-new
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_PASSWORD: admin123
     ports:
-      - "8081:80"
+      - "8082:80"
     depends_on:
       - db
+
 volumes:
-  pgdata:
+  jobstream-data-new:
