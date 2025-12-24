@@ -75,5 +75,9 @@ public class CandidateProfileServiceImpl implements CandidateProfileService {
                 .orElseThrow(() -> new RuntimeException("Candidate profile not found with id: " + id));
         candidateProfileRepository.delete(candidateProfile);
     }
+
+    public CandidateProfile getEntityById(Long id){
+        return candidateProfileRepository.findById(id).orElse(null);
+    }
 }
 
