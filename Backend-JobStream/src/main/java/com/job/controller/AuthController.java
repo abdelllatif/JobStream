@@ -30,8 +30,8 @@ public class AuthController {
                         dto.getEmail(), dto.getPassword()
                 )
         );
-
-        String token = jwtService.generateToken(dto.getEmail());
+        UserResponseDTO user=userService.getByEmail(dto.getEmail());
+        String token = jwtService.generateToken(dto.getEmail(),user.getId());
         return new AuthResponseDTO(token);
     }
 

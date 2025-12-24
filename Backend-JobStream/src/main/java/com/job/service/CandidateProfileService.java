@@ -3,6 +3,7 @@ package com.job.service;
 import com.job.dto.request.CandidateProfileCreateRequestDTO;
 import com.job.dto.request.CandidateProfileUpdateRequestDTO;
 import com.job.dto.response.CandidateProfileResponseDTO;
+import com.job.entity.CandidateProfile;
 
 import java.util.List;
 
@@ -12,5 +13,7 @@ public interface CandidateProfileService {
     List<CandidateProfileResponseDTO> getAll();
     CandidateProfileResponseDTO update(Long id, CandidateProfileUpdateRequestDTO dto);
     void delete(Long id);
+
+    CandidateProfile getEntityById(Long id);
 }
 
