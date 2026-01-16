@@ -16,10 +16,14 @@ public class Company {
     private String description;
     private String website;
     private String logoUrl;
-
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+    
+    @ManyToOne
+    @JoinColumn(name = "domain_id")
+    private Domain domain;
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     private List<Job> jobs;

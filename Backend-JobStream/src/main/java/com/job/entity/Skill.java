@@ -7,7 +7,7 @@ public class Skill {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private int level; // 1-5 par ex
+    private int level;
 
     @ManyToOne
     @JoinColumn(name = "candidate_profile_id")

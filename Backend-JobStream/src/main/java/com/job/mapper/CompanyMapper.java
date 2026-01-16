@@ -10,15 +10,15 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CompanyMapper {
 
-    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "owner", ignore = true)
     @Mapping(target = "jobs", ignore = true)
     Company toEntity(CompanyCreateRequestDTO dto);
 
-    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "owner", ignore = true)
     @Mapping(target = "jobs", ignore = true)
     Company toEntity(CompanyUpdateRequestDTO dto);
 
-    @Mapping(target = "userId", expression = "java(company.getUser() != null ? company.getUser().getId() : null)")
+    @Mapping(target = "userId", expression = "java(company.getOwner() != null ? company.getOwner().getId() : null)")
     CompanyResponseDTO toResponse(Company company);
 }
 
