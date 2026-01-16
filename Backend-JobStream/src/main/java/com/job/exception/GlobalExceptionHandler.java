@@ -109,6 +109,32 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(CompanyUserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCompanyUserNotFoundException(
+            CompanyUserNotFoundException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                "COMPANY_USER_NOT_FOUND",
+                HttpStatus.NOT_FOUND.value()
+        );
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DuplicateCompanyUserException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateCompanyUserException(
+            DuplicateCompanyUserException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                "DUPLICATE_COMPANY_USER",
+                HttpStatus.CONFLICT.value()
+        );
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false).replace("uri=", ""));
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(
             AccessDeniedException ex, WebRequest request) {
