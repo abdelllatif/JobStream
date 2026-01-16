@@ -1,5 +1,0 @@
-databaseChangeLog:
-  - include:
-      file: db/changelog/001-complete-schema.sql
-  - include:
-      file: db/changelog/002-add-created-at.sql
