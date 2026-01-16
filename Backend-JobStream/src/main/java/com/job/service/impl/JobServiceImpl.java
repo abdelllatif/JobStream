@@ -13,6 +13,7 @@ import com.job.repository.CompanyRepository;
 import com.job.repository.DomainRepository;
 import com.job.repository.JobRepository;
 import com.job.service.JobService;
+import com.job.util.TagExtractor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +47,15 @@ public class JobServiceImpl implements JobService {
         job.setPostedAt(LocalDateTime.now());
         job.setUpdatedAt(LocalDateTime.now());
         job.setActive(true);
+
+        // Extraire les tags de la description
+        String description = dto.getDescription();
+        if (TagExtractor.hasTags(description)) {
+            String tags = TagExtractor.extractTagsAsString(description);
+            // Vous pouvez stocker les tags dans un champ séparé si nécessaire
+            // job.setTags(tags);
+            System.out.println("Tags extraits de la description: " + tags);
+        }
 
         return jobMapper.toResponse(jobRepository.save(job));
     }

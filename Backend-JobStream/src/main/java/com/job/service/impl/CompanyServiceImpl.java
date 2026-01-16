@@ -34,7 +34,7 @@ public class CompanyServiceImpl implements CompanyService {
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
                     .orElseThrow(() -> new UserNotFoundException("User not found with id: " + dto.getUserId()));
-            company.setUser(user);
+            company.setOwner(user);
         }
 
         return companyMapper.toResponse(companyRepository.save(company));

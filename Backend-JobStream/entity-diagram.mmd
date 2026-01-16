@@ -1,0 +1,189 @@
+classDiagram
+    class User {
+        -Long id
+        -String firstName
+        -String lastName
+        -String email
+        -String password
+        -Role role
+        -LocalDateTime createdAt
+        -LocalDateTime updatedAt
+    }
+
+    class CandidateProfile {
+        -Long id
+        -String phone
+        -String address
+        -String summary
+        -String cvUrl
+    }
+
+    class Company {
+        -Long id
+        -String name
+        -String description
+        -String website
+        -String logoUrl
+    }
+
+    class CompanyUser {
+        -Long id
+        -String jobTitle
+        -LocalDate joinedAt
+        -MembershipStatus status
+    }
+
+    class Job {
+        -Long id
+        -String title
+        -String description
+        -String location
+        -String contractType
+        -LocalDateTime postedAt
+        -LocalDateTime updatedAt
+        -boolean active
+    }
+
+    class Application {
+        -Long id
+        -ApplicationStatus status
+        -LocalDateTime appliedAt
+    }
+
+    class Experience {
+        -Long id
+        -String title
+        -String company
+        -LocalDate startDate
+        -LocalDate endDate
+        -String description
+    }
+
+    class Education {
+        -Long id
+        -String school
+        -String degree
+        -LocalDate startDate
+        -LocalDate endDate
+    }
+
+    class Skill {
+        -Long id
+        -String name
+        -int level
+    }
+
+    class Domain {
+        -Long id
+        -String name
+    }
+
+    class Tag {
+        -Long id
+        -String name
+    }
+
+    class Message {
+        -Long id
+        -String content
+        -LocalDateTime sentAt
+    }
+
+    class Notification {
+        -Long id
+        -String message
+        -boolean read
+        -LocalDateTime createdAt
+    }
+
+    class Payment {
+        -Long id
+        -LocalDateTime paidAt
+        -String paypalTransactionId
+        -boolean success
+    }
+
+    class Role {
+        <<enumeration>>
+        CANDIDATE
+        RECRUITER
+        CEO
+        ADMIN
+    }
+
+    class ApplicationStatus {
+        <<enumeration>>
+        PENDING
+        ACCEPTED
+        REJECTED
+    }
+
+    class MembershipStatus {
+        <<enumeration>>
+        ACTIVE
+        INACTIVE
+        PENDING
+        SUSPENDED
+    }
+
+    %% User relationships
+    User "1" --> "0..1" CandidateProfile : candidateProfile
+    User "1" --> "0..1" Company : companyProfile
+    User "1" --> "*" Message : sender
+    User "1" --> "*" Message : receiver
+    User "1" --> "*" Payment : payments
+    User "1" --> "*" Company : owner
+    User "1" --> "*" CompanyUser : companyUsers
+
+    %% CandidateProfile relationships
+    CandidateProfile "1" --> "1" User : user
+    CandidateProfile "1" --> "*" Experience : experiences
+    CandidateProfile "1" --> "*" Education : educations
+    CandidateProfile "1" --> "*" Skill : skills
+    CandidateProfile "1" --> "*" Application : applications
+    CandidateProfile "1" --> "*" Notification : notifications
+
+    %% Company relationships
+    Company "*" --> "1" User : owner
+    Company "1" --> "1" User : user
+    Company "*" --> "1" Domain : domain
+    Company "1" --> "*" Job : jobs
+    Company "1" --> "*" CompanyUser : companyUsers
+
+    %% CompanyUser relationships
+    CompanyUser "*" --> "1" User : user
+    CompanyUser "*" --> "1" Company : company
+
+    %% Job relationships
+    Job "*" --> "1" Company : company
+    Job "*" --> "1" Domain : domain
+    Job "1" --> "*" Application : applications
+    Job "*" --> "*" Tag : tags
+
+    %% Application relationships
+    Application "*" --> "1" CandidateProfile : candidateProfile
+    Application "*" --> "1" Job : job
+
+    %% Experience relationships
+    Experience "*" --> "1" CandidateProfile : candidateProfile
+
+    %% Education relationships
+    Education "*" --> "1" CandidateProfile : candidateProfile
+
+    %% Skill relationships
+    Skill "*" --> "1" CandidateProfile : candidateProfile
+
+    %% Domain relationships
+    Domain "1" --> "*" Job : jobs
+
+    %% Tag relationships
+    Tag "*" --> "*" Job : jobs
+
+    %% Notification relationships
+    Notification "*" --> "1" CandidateProfile : candidateProfile
+
+    %% Enum relationships
+    User --> Role : role
+    Application --> ApplicationStatus : status
+    CompanyUser --> MembershipStatus : status
+

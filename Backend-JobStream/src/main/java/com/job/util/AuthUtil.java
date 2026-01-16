@@ -15,7 +15,6 @@ public class AuthUtil {
 
     private final UserRepository userRepository;
 
-    // Get the email of the authenticated user
     public String getCurrentUserEmail() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof UserDetails)) {
@@ -25,14 +24,12 @@ public class AuthUtil {
         return userDetails.getUsername();
     }
 
-    // Get the full User entity
     public User getCurrentUser() {
         String email = getCurrentUserEmail();
         if (email == null) return null;
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    // Get the user ID
     public Long getCurrentUserId() {
         User user = getCurrentUser();
         return user != null ? user.getId() : null;
