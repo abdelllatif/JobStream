@@ -1,37 +1,3 @@
-<<<<<<< HEAD
-version: '3.8'
-
-services:
-  db:
-    image: postgres:15-alpine
-    container_name: jobstream-db
-    environment:
-      POSTGRES_DB: jobstream
-      POSTGRES_USER: jobstream
-      POSTGRES_PASSWORD: jobstream123
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  app:
-    build: .
-    container_name: jobstream-app
-    ports:
-      - "8082:8082"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/jobstream
-      - SPRING_DATASOURCE_USERNAME=jobstream
-      - SPRING_DATASOURCE_PASSWORD=jobstream123
-      - JWT_SECRET=your-super-secret-jwt-key-for-jobstream-2024-change-this-in-production
-    depends_on:
-      - db
-    volumes:
-      - ./uploads:/app/uploads
-
-volumes:
-  postgres_data:
-=======
 version: '3.9'
 
 services:
@@ -79,4 +45,3 @@ volumes:
 networks:
   jobstream_net:
     driver: bridge
->>>>>>> 84b8ff99cee2615162a22ab75f087003e12a2c84
