@@ -1,0 +1,60 @@
+mvnd : Mar 24, 2026 
+9:56:41 AM 
+org.jline.utils.Log logr
+Au caract?re Ligne:1 : 1
++ mvnd compile > 
+build_log.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo      
+        : NotSpecified  
+  : (Mar 24, 2026 9:.   
+ ...utils.Log logr:S    
+tring) [], RemoteEx    
+ception
+    + FullyQualifiedErr 
+   orId : NativeComman  
+  dError
+ 
+WARNING: Unable to 
+create a system 
+terminal, creating a 
+dumb terminal (enable 
+debug logging for more 
+information)
+[main] WARNING 
+org.jline - Unable to 
+create a system 
+terminal, creating a 
+dumb terminal (enable 
+debug logging for more 
+information)
+[INFO] Processing build on daemon 1f0a46a0
+[INFO] Scanning for projects...
+[INFO] BuildTimeEventSpy is registered.
+[INFO] 
+[INFO] Using the SmartBuilder implementation with a thread count of 11
+[INFO] 
+[INFO] --------------------------< com.Jobstream:V0 >--------------------------
+[INFO] Building JobStream 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ V0 ---
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] Copying 16 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ V0 ---
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.545 s (Wall Clock)
+[INFO] Finished at: 2026-03-24T09:56:42+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project V0: Resolution of annotationProcessorPath dependencies failed: version can neither be null, empty nor blank -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
