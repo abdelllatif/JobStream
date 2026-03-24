@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <include file="db/changelog/V1__create_users_table.sql"/>
+    <include file="db/changelog/V2__create_profiles_table.sql"/>
+    <include file="db/changelog/V3__create_skills_table.sql"/>
+    <include file="db/changelog/V4__create_educations_table.sql"/>
+    <include file="db/changelog/V5__create_experiences_table.sql"/>
+    <include file="db/changelog/V6__create_companies_table.sql"/>
+    <include file="db/changelog/V7__create_company_users_table.sql"/>
+    <include file="db/changelog/V8__create_jobs_table.sql"/>
+    <include file="db/changelog/V9__create_applications_table.sql"/>
+    <include file="db/changelog/V10__create_connections_table.sql"/>
+    <include file="db/changelog/V11__create_user_blocks_table.sql"/>
+    <include file="db/changelog/V12__create_conversations_table.sql"/>
+    <include file="db/changelog/V13__create_conversation_participants_table.sql"/>
+    <include file="db/changelog/V14__create_messages_table.sql"/>
+    <include file="db/changelog/V15__create_notifications_table.sql"/>
+    <include file="db/changelog/V16__fix_column_names.sql"/>
+    <include file="db/changelog/V17__add_missing_updated_at_columns.sql"/>
+    <include file="db/changelog/V18__add_provider_id_to_users.sql"/>
+    <include file="db/changelog/migrations/V19_add_user_names.xml"/>
+
+</databaseChangeLog>
