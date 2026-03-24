@@ -6,8 +6,9 @@ import com.job.dto.response.ExperienceResponseDTO;
 import com.job.entity.Experience;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ExperienceMapper {
 
     @Mapping(target = "candidateProfile", ignore = true)

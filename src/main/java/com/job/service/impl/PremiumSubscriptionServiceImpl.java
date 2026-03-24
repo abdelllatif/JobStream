@@ -33,19 +33,14 @@ public class PremiumSubscriptionServiceImpl implements PremiumSubscriptionServic
     @Transactional
     public Map<String, Object> createSubscriptionWithPayment(Long userId, PlanType planType) {
         try {
-            // Check if user already has active subscription
             Optional<PremiumSubscription> existingSubscription = getActiveSubscription(userId);
             if (existingSubscription.isPresent()) {
                 throw new RuntimeException("User already has an active premium subscription");
             }
 
-            // Calculate amount based on plan type
             BigDecimal amount = calculateAmount(planType);
             
-            // Delegate payment creation to PayPalService
             Payment payment = payPalService.createPayment(userId, planType, amount, "USD");
-            
-            // Get approval URL from PayPalService
             String approvalUrl = payPalService.approvePayment(payment.getPaypalPaymentId());
             
             Map<String, Object> response = new HashMap<>();
@@ -59,8 +54,6 @@ public class PremiumSubscriptionServiceImpl implements PremiumSubscriptionServic
             throw new RuntimeException("Failed to create subscription with payment: " + e.getMessage());
         }
     }
-
-    // Payment operations delegated to PayPalService
     @Override
     public Payment createPayment(Long userId, PlanType planType, BigDecimal amount, String currency) {
         return payPalService.createPayment(userId, planType, amount, currency);

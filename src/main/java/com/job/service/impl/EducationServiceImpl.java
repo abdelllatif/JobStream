@@ -30,7 +30,8 @@ public class EducationServiceImpl implements EducationService {
         Education education = educationMapper.toEntity(dto);
 
         CandidateProfile candidateProfile = candidateProfileRepository.findById(dto.getCandidateProfileId())
-                .orElseThrow(() -> new RuntimeException("Candidate profile not found with id: " + dto.getCandidateProfileId()));
+                .orElseThrow(() -> new RuntimeException(
+                        "Candidate profile not found with id: " + dto.getCandidateProfileId()));
 
         education.setCandidateProfile(candidateProfile);
 
@@ -59,10 +60,14 @@ public class EducationServiceImpl implements EducationService {
 
         Education updatedEducation = educationMapper.toEntity(dto);
 
-        if (dto.getSchool() != null) education.setSchool(updatedEducation.getSchool());
-        if (dto.getDegree() != null) education.setDegree(updatedEducation.getDegree());
-        if (dto.getStartDate() != null) education.setStartDate(updatedEducation.getStartDate());
-        if (dto.getEndDate() != null) education.setEndDate(updatedEducation.getEndDate());
+        if (dto.getSchool() != null)
+            education.setSchool(updatedEducation.getSchool());
+        if (dto.getDegree() != null)
+            education.setDegree(updatedEducation.getDegree());
+        if (dto.getStartDate() != null)
+            education.setStartDate(updatedEducation.getStartDate());
+        if (dto.getEndDate() != null)
+            education.setEndDate(updatedEducation.getEndDate());
 
         return educationMapper.toResponse(educationRepository.save(education));
     }
@@ -74,5 +79,11 @@ public class EducationServiceImpl implements EducationService {
                 .orElseThrow(() -> new RuntimeException("Education not found with id: " + id));
         educationRepository.delete(education);
     }
-}
 
+    @Override
+    public List<EducationResponseDTO> getEducationsByProfile(Long candidateProfileId) {
+        return educationRepository.findByCandidateProfileId(candidateProfileId).stream()
+                .map(educationMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+}

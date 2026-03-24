@@ -6,6 +6,7 @@ import com.job.dto.response.CompanyUserResponseDTO;
 import com.job.entity.Company;
 import com.job.entity.CompanyUser;
 import com.job.entity.User;
+import com.job.enums.CompanyRole;
 import com.job.enums.MembershipStatus;
 import com.job.exception.CompanyNotFoundException;
 import com.job.exception.CompanyUserNotFoundException;
@@ -16,6 +17,7 @@ import com.job.repository.CompanyRepository;
 import com.job.repository.CompanyUserRepository;
 import com.job.repository.UserRepository;
 import com.job.service.CompanyUserService;
+import com.job.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ public class CompanyUserServiceImpl implements CompanyUserService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final CompanyUserMapper companyUserMapper;
+    private final AuthUtil authUtil;
 
     @Override
     @Transactional
@@ -51,8 +54,10 @@ public class CompanyUserServiceImpl implements CompanyUserService {
         companyUser.setUser(user);
         companyUser.setCompany(company);
         companyUser.setJoinedAt(LocalDate.now());
-        companyUser.setStatus(MembershipStatus.PENDING); // Default status is PENDING
-
+        companyUser.setStatus(MembershipStatus.PENDING);
+        // Default role for joining requests - can be changed by Admin
+        companyUser.setRole(CompanyRole.RECRUITER); 
+        
         return companyUserMapper.toResponse(companyUserRepository.save(companyUser));
     }
 
@@ -81,17 +86,32 @@ public class CompanyUserServiceImpl implements CompanyUserService {
     @Override
     @Transactional
     public CompanyUserResponseDTO updateCompanyUser(Long id, CompanyUserUpdateRequestDTO dto) {
-        CompanyUser companyUser = companyUserRepository.findById(id)
+        CompanyUser targetMember = companyUserRepository.findById(id)
                 .orElseThrow(() -> new CompanyUserNotFoundException("CompanyUser not found with id: " + id));
 
-        if (dto.getJobTitle() != null) {
-            companyUser.setJobTitle(dto.getJobTitle());
-        }
-        if (dto.getStatus() != null) {
-            companyUser.setStatus(dto.getStatus());
+        // Security check: Only CEO or HR of the company can update memberships
+        User currentUser = authUtil.getCurrentUser();
+        if (currentUser == null) throw new RuntimeException("User must be authenticated");
+
+        CompanyUser requesterMembership = companyUserRepository.findByUserAndCompany(currentUser, targetMember.getCompany())
+                .orElseThrow(() -> new RuntimeException("You are not a member of this company"));
+
+        if (requesterMembership.getStatus() != MembershipStatus.ACTIVE || 
+            (requesterMembership.getRole() != CompanyRole.CEO && requesterMembership.getRole() != CompanyRole.HR)) {
+            throw new RuntimeException("Only ACTIVE CEO or HR can update membership statuses and roles");
         }
 
-        return companyUserMapper.toResponse(companyUserRepository.save(companyUser));
+        if (dto.getJobTitle() != null) {
+            targetMember.setJobTitle(dto.getJobTitle());
+        }
+        if (dto.getStatus() != null) {
+            targetMember.setStatus(dto.getStatus());
+        }
+        if (dto.getCompanyRole() != null) {
+            targetMember.setRole(dto.getCompanyRole());
+        }
+
+        return companyUserMapper.toResponse(companyUserRepository.save(targetMember));
     }
 
     @Override

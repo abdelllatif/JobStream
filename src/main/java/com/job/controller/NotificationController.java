@@ -1,8 +1,10 @@
 package com.job.controller;
 
+import com.job.dto.response.NotificationDTO;
 import com.job.entity.Notification;
 import com.job.enums.NotificationType;
 import com.job.service.NotificationService;
+import com.job.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,40 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final AuthUtil authUtil;
+
+    private NotificationDTO toDto(Notification notification) {
+        String icon = mapTypeToIcon(notification.getType());
+        return NotificationDTO.builder()
+                .id(notification.getId())
+                .icon(icon)
+                .title(notification.getTitle())
+                .body(notification.getMessage())
+                .time(notification.getCreatedAt() != null ? notification.getCreatedAt().toString() : null)
+                .read(notification.isRead())
+                .type(notification.getType())
+                .jobId(notification.getJob() != null ? notification.getJob().getId() : null)
+                .candidateProfileId(notification.getCandidateProfile() != null ? notification.getCandidateProfile().getId() : null)
+                .build();
+    }
+
+    private String mapTypeToIcon(NotificationType type) {
+        if (type == null) {
+            return "🔔";
+        }
+        return switch (type) {
+            case APPLICATION_RECEIVED -> "📩";
+            case APPLICATION_STATUS_CHANGED -> "✅";
+            case JOB_RECOMMENDATION -> "💼";
+            case PROFILE_VISIT -> "👀";
+            case CONNECTION_REQUEST -> "🤝";
+            case MESSAGE_RECEIVED -> "💬";
+            case JOB_EXPIRED -> "⏰";
+            case PREMIUM_EXPIRING -> "⭐";
+            case PAYMENT_SUCCESSFUL -> "💰";
+            case PAYMENT_FAILED -> "⚠️";
+        };
+    }
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ADMIN')")
@@ -27,13 +63,8 @@ public class NotificationController {
             @RequestParam String title,
             @RequestParam String message,
             @RequestParam NotificationType type) {
-        try {
-            Notification notification = notificationService.createNotification(userId, title, message, type);
-            return ResponseEntity.ok(notification);
-        } catch (Exception e) {
-            log.error("Error creating notification for user {}: {}", userId, e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        Notification notification = notificationService.createNotification(userId, title, message, type);
+        return ResponseEntity.ok(notification);
     }
 
     @PostMapping("/create-with-job")
@@ -44,18 +75,17 @@ public class NotificationController {
             @RequestParam String message,
             @RequestParam NotificationType type,
             @RequestParam Long jobId) {
-        try {
-            Notification notification = notificationService.createNotificationWithJob(userId, title, message, type, jobId);
-            return ResponseEntity.ok(notification);
-        } catch (Exception e) {
-            log.error("Error creating job notification for user {}: {}", userId, e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        Notification notification = notificationService.createNotificationWithJob(userId, title, message, type, jobId);
+        return ResponseEntity.ok(notification);
     }
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<List<Notification>> getUserNotifications(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
         List<Notification> notifications = notificationService.getUserNotifications(userId);
         return ResponseEntity.ok(notifications);
     }
@@ -63,6 +93,10 @@ public class NotificationController {
     @GetMapping("/unread/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<List<Notification>> getUnreadNotifications(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
         List<Notification> notifications = notificationService.getUnreadNotifications(userId);
         return ResponseEntity.ok(notifications);
     }
@@ -70,55 +104,86 @@ public class NotificationController {
     @PutMapping("/read/{notificationId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<Void> markAsRead(@PathVariable Long notificationId) {
-        try {
-            notificationService.markAsRead(notificationId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error("Error marking notification {} as read: {}", notificationId, e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        notificationService.markAsRead(notificationId);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/read-all/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<Void> markAllAsRead(@PathVariable Long userId) {
-        try {
-            notificationService.markAllAsRead(userId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error("Error marking all notifications as read for user {}: {}", userId, e.getMessage());
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
             return ResponseEntity.badRequest().build();
         }
+        notificationService.markAllAsRead(userId);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{notificationId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
-        try {
-            notificationService.deleteNotification(notificationId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error("Error deleting notification {}: {}", notificationId, e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        notificationService.deleteNotification(notificationId);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<Void> deleteAllNotifications(@PathVariable Long userId) {
-        try {
-            notificationService.deleteAllNotifications(userId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error("Error deleting all notifications for user {}: {}", userId, e.getMessage());
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
             return ResponseEntity.badRequest().build();
         }
+        notificationService.deleteAllNotifications(userId);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/unread-count/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<Map<String, Long>> getUnreadCount(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
         long count = notificationService.getUnreadCount(userId);
         return ResponseEntity.ok(Map.of("count", count));
+    }
+
+    /**
+     * Frontend-friendly list endpoint:
+     * GET /api/notifications?userId=
+     */
+    @GetMapping
+    @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
+    public ResponseEntity<List<NotificationDTO>> getNotificationsByQuery(@RequestParam("userId") Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<Notification> notifications = notificationService.getUserNotifications(userId);
+        List<NotificationDTO> dtoList = notifications.stream()
+                .map(this::toDto)
+                .toList();
+        return ResponseEntity.ok(dtoList);
+    }
+
+    /**
+     * Frontend-friendly mark-read endpoints using POST semantics.
+     */
+    @PostMapping("/mark-read/{notificationId}")
+    @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
+    public ResponseEntity<Void> markAsReadPost(@PathVariable Long notificationId) {
+        notificationService.markAsRead(notificationId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/mark-all-read")
+    @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
+    public ResponseEntity<Void> markAllAsReadPost(@RequestParam("userId") Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
+        notificationService.markAllAsRead(userId);
+        return ResponseEntity.ok().build();
     }
 }

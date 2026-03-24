@@ -4,6 +4,7 @@ import com.job.dto.request.CompanyCreateRequestDTO;
 import com.job.dto.request.CompanyUpdateRequestDTO;
 import com.job.dto.response.CompanyResponseDTO;
 import com.job.service.CompanyService;
+import com.job.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +16,7 @@ import java.util.List;
 public class CompanyController {
 
     private final CompanyService companyService;
+    private final AuthUtil authUtil;
 
     @PostMapping
     public CompanyResponseDTO create(@RequestBody CompanyCreateRequestDTO dto) {

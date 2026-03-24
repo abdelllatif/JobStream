@@ -1,9 +1,12 @@
 package com.job.service.impl;
 
+import com.job.entity.Job;
 import com.job.entity.Message;
 import com.job.entity.User;
+import com.job.repository.JobRepository;
 import com.job.repository.MessageRepository;
 import com.job.repository.UserRepository;
+import com.job.service.ConnectionService;
 import com.job.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,9 @@ public class MessageServiceImpl implements MessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final JobRepository jobRepository;
+    private final ConnectionService connectionService;
+    private final com.job.websocket.NotificationBroadcaster notificationBroadcaster;
 
     @Override
     @Transactional
@@ -31,6 +37,10 @@ public class MessageServiceImpl implements MessageService {
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
         User receiver = userRepository.findById(receiverId)
                 .orElseThrow(() -> new RuntimeException("Receiver not found"));
+
+        if (!connectionService.areUsersConnected(senderId, receiverId)) {
+            throw new RuntimeException("Users must be connected to send messages");
+        }
 
         Message message = new Message();
         message.setSender(sender);
@@ -41,8 +51,22 @@ public class MessageServiceImpl implements MessageService {
         message.setCreatedAt(LocalDateTime.now());
         message.setUpdatedAt(LocalDateTime.now());
 
+        if (jobId != null) {
+            Job job = jobRepository.findById(jobId).orElse(null);
+            message.setJob(job);
+        }
+
         Message savedMessage = messageRepository.save(message);
         log.info("Message sent from user {} to user {}", senderId, receiverId);
+
+        // Notify receiver
+        notificationBroadcaster.broadcastNotification(
+                receiverId,
+                "Nouveau message",
+                sender.getFirstName() + " " + sender.getLastName() + " vous a envoyé un message.",
+                com.job.enums.NotificationType.MESSAGE_RECEIVED
+        );
+
         return savedMessage;
     }
 

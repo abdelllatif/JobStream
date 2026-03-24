@@ -1,6 +1,8 @@
 package com.job.controller;
 
 import com.job.service.FileUploadService;
+import com.job.service.UserService;
+import com.job.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 @RestController
 @RequestMapping("/api/files")
@@ -22,7 +23,8 @@ import java.nio.file.Path;
 public class FileUploadController {
 
     private final FileUploadService fileUploadService;
-
+    private final AuthUtil authUtil;
+    private final UserService userService;
     @PostMapping("/upload")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<String> uploadFile(
@@ -40,31 +42,29 @@ public class FileUploadController {
     @PostMapping("/upload-cv")
     @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<String> uploadCV(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam Long userId) {
+            @RequestParam("file") MultipartFile file) {
         try {
+            Long userId = authUtil.getCurrentUserId();
             String filePath = fileUploadService.uploadCV(file, userId);
             return ResponseEntity.ok(filePath);
         } catch (IOException e) {
-            log.error("Error uploading CV for user {}: {}", userId, e.getMessage());
+            log.error("Error uploading CV for current user: {}", e.getMessage());
             return ResponseEntity.badRequest().body("CV upload failed: " + e.getMessage());
         }
     }
 
     @PostMapping("/upload-profile-picture")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER')")
-    public ResponseEntity<String> uploadProfilePicture(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam Long userId) {
+    public ResponseEntity<String> uploadProfilePicture(@RequestParam("file") MultipartFile file) {
         try {
-            String filePath = fileUploadService.uploadProfilePicture(file, userId);
+            Long userId = authUtil.getCurrentUserId();
+            String filePath = userService.updateProfilePicture(userId, file);
             return ResponseEntity.ok(filePath);
         } catch (IOException e) {
-            log.error("Error uploading profile picture for user {}: {}", userId, e.getMessage());
+            log.error("Error uploading profile picture: {}", e.getMessage());
             return ResponseEntity.badRequest().body("Profile picture upload failed: " + e.getMessage());
         }
     }
-
     @PostMapping("/upload-company-logo")
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<String> uploadCompanyLogo(

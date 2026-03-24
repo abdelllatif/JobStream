@@ -5,6 +5,7 @@ import com.job.entity.User;
 import com.job.repository.ProfileVisitRepository;
 import com.job.repository.UserRepository;
 import com.job.service.ProfileVisitService;
+import com.job.websocket.NotificationBroadcaster;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class ProfileVisitServiceImpl implements ProfileVisitService {
 
     private final ProfileVisitRepository profileVisitRepository;
     private final UserRepository userRepository;
+    private final NotificationBroadcaster notificationBroadcaster;
 
     @Override
     @Transactional
@@ -41,6 +43,17 @@ public class ProfileVisitServiceImpl implements ProfileVisitService {
 
         ProfileVisit savedVisit = profileVisitRepository.save(visit);
         log.info("Recorded profile visit from user {} to user {}", visitorId, profileOwnerId);
+
+        // Notify profile owner about the visit
+        String title = "Nouvelle visite de profil";
+        String message = "Votre profil a été visité par "
+                + (visitor.getFirstName() != null ? visitor.getFirstName() : "un utilisateur");
+        notificationBroadcaster.broadcastNotification(
+                profileOwnerId,
+                title,
+                message,
+                com.job.enums.NotificationType.PROFILE_VISIT);
+
         return savedVisit;
     }
 

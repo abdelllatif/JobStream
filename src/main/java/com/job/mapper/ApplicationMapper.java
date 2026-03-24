@@ -1,13 +1,15 @@
 package com.job.mapper;
 
+
 import com.job.dto.request.ApplicationCreateRequestDTO;
 import com.job.dto.request.ApplicationUpdateRequestDTO;
 import com.job.dto.response.ApplicationResponseDTO;
 import com.job.entity.Application;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ApplicationMapper {
 
     @Mapping(target = "job", ignore = true)
@@ -22,4 +24,3 @@ public interface ApplicationMapper {
     @Mapping(target = "jobId", expression = "java(application.getJob() != null ? application.getJob().getId() : null)")
     ApplicationResponseDTO toResponse(Application application);
 }
-

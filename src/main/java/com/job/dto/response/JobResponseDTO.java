@@ -19,7 +19,7 @@ public class JobResponseDTO {
     private Long companyId;
     private Long domainId;
     private List<Long> tagIds;
+    private String externalLink;
+    private UserDTO poster;
+    private Long applicationCount;
 }
-
-
-

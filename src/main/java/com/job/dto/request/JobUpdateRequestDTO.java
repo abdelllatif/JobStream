@@ -20,7 +20,6 @@ public class JobUpdateRequestDTO {
     private Boolean active;
 
     private Long domainId;
+
+    private String externalLink;
 }
-
-
-

@@ -1,4 +1,4 @@
-package com.job.dto;
+package com.job.dto.request;
 
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;

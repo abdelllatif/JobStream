@@ -1,7 +1,13 @@
 package com.job.service.impl;
 
+import com.job.dto.response.GlobalSearchResponseDTO;
+import com.job.entity.Company;
 import com.job.entity.Job;
 import com.job.entity.User;
+import com.job.mapper.CompanyMapper;
+import com.job.mapper.JobMapper;
+import com.job.mapper.UserMapper;
+import com.job.repository.CompanyRepository;
 import com.job.repository.JobRepository;
 import com.job.repository.UserRepository;
 import com.job.service.SearchService;
@@ -24,6 +30,10 @@ public class SearchServiceImpl implements SearchService {
 
     private final JobRepository jobRepository;
     private final UserRepository userRepository;
+    private final CompanyRepository companyRepository;
+    private final JobMapper jobMapper;
+    private final UserMapper userMapper;
+    private final CompanyMapper companyMapper;
 
     @Override
     public Page<Job> searchJobs(String keyword, String location, String contractType, 
@@ -120,6 +130,31 @@ public class SearchServiceImpl implements SearchService {
                 .filter(s -> s.toLowerCase().contains(query.toLowerCase()))
                 .limit(5)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public GlobalSearchResponseDTO globalSearch(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return GlobalSearchResponseDTO.builder()
+                    .users(new ArrayList<>())
+                    .jobs(new ArrayList<>())
+                    .companies(new ArrayList<>())
+                    .build();
+        }
+
+        List<Job> foundJobs = jobRepository.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(query, query, PageRequest.of(0, 10)).getContent();
+        List<User> foundUsers = userRepository.findByRole(com.job.enums.Role.CANDIDATE).stream()
+                .filter(user -> (user.getFirstName() + " " + user.getLastName()).toLowerCase().contains(query.toLowerCase()) || 
+                                (user.getBio() != null && user.getBio().toLowerCase().contains(query.toLowerCase())))
+                .limit(10)
+                .collect(Collectors.toList());
+        List<Company> foundCompanies = companyRepository.findByNameContainingIgnoreCase(query);
+
+        return GlobalSearchResponseDTO.builder()
+                .jobs(foundJobs.stream().map(jobMapper::toResponse).collect(Collectors.toList()))
+                .users(foundUsers.stream().map(userMapper::toResponse).collect(Collectors.toList()))
+                .companies(foundCompanies.stream().map(companyMapper::toResponse).collect(Collectors.toList()))
+                .build();
     }
 
     @Override

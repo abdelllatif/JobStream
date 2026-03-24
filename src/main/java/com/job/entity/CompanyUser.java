@@ -28,6 +28,9 @@ public class CompanyUser {
     private LocalDate joinedAt;
 
     @Enumerated(EnumType.STRING)
+    private CompanyRole role;
+
+    @Enumerated(EnumType.STRING)
     private MembershipStatus status;
 }
 

@@ -5,6 +5,7 @@ import com.job.entity.PremiumSubscription;
 import com.job.enums.PlanType;
 import com.job.service.PayPalService;
 import com.job.service.PremiumSubscriptionService;
+import com.job.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -22,15 +23,17 @@ public class PremiumSubscriptionController {
 
     private final PremiumSubscriptionService premiumSubscriptionService;
     private final PayPalService payPalService;
+    private final AuthUtil authUtil;
 
     @PostMapping("/subscribe")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER')")
-    public ResponseEntity<Map<String, Object>> subscribe(@RequestParam Long userId, @RequestParam PlanType planType) {
+    public ResponseEntity<Map<String, Object>> subscribe(@RequestParam PlanType planType) {
         try {
+            Long userId = authUtil.getCurrentUserId();
             Map<String, Object> result = premiumSubscriptionService.createSubscriptionWithPayment(userId, planType);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            log.error("Error creating subscription with payment for user {} with plan {}: {}", userId, planType, e.getMessage());
+            log.error("Error creating subscription with payment for current user with plan {}: {}", planType, e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
@@ -90,6 +93,10 @@ public class PremiumSubscriptionController {
     @GetMapping("/active/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<PremiumSubscription> getActiveSubscription(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
         return premiumSubscriptionService.getActiveSubscription(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -98,15 +105,23 @@ public class PremiumSubscriptionController {
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<List<PremiumSubscription>> getUserSubscriptions(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
         List<PremiumSubscription> subscriptions = premiumSubscriptionService.getUserSubscriptions(userId);
         return ResponseEntity.ok(subscriptions);
     }
 
     @GetMapping("/check/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
-    public ResponseEntity<Map<String, Boolean>> checkPremiumStatus(@PathVariable Long userId) {
+    public ResponseEntity<Boolean> checkPremiumStatus(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
         boolean isPremium = premiumSubscriptionService.isUserPremium(userId);
-        return ResponseEntity.ok(Map.of("isPremium", isPremium));
+        return ResponseEntity.ok(isPremium);
     }
 
     @PostMapping("/expire-check")
@@ -119,6 +134,10 @@ public class PremiumSubscriptionController {
     @GetMapping("/payments/user/{userId}")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<List<Payment>> getUserPayments(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            return ResponseEntity.badRequest().build();
+        }
         List<Payment> payments = payPalService.getUserPayments(userId);
         return ResponseEntity.ok(payments);
     }

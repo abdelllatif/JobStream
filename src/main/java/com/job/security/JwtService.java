@@ -18,14 +18,25 @@ public class JwtService {
                             .getBytes(StandardCharsets.UTF_8)
             );
 
-    private final long EXPIRATION = 86400000;
+    private final long EXPIRATION = 86400000; // 24 hours
+    private final long REFRESH_EXPIRATION = 604800000; // 7 days
 
-    public String generateToken(String email,Long userId) {
+    public String generateToken(String email, Long userId) {
         return Jwts.builder()
                 .subject(email)
                 .claim("id", userId)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(key)
+                .compact();
+    }
+
+    public String generateRefreshToken(String email, Long userId) {
+        return Jwts.builder()
+                .subject(email)
+                .claim("id", userId)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
                 .signWith(key)
                 .compact();
     }
@@ -38,5 +49,14 @@ public class JwtService {
                 .getPayload();
 
         return claims.getSubject();
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

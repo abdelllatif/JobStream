@@ -1,8 +1,10 @@
 package com.job.service.impl;
 
+import com.job.entity.Job;
 import com.job.entity.Notification;
 import com.job.entity.User;
 import com.job.enums.NotificationType;
+import com.job.repository.JobRepository;
 import com.job.repository.NotificationRepository;
 import com.job.repository.UserRepository;
 import com.job.service.NotificationService;
@@ -21,6 +23,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final JobRepository jobRepository;
 
     @Override
     @Transactional
@@ -43,8 +46,14 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional
-    public Notification createNotificationWithJob(Long userId, String title, String message, NotificationType type, Long jobId) {
+    public Notification createNotificationWithJob(Long userId, String title, String message, NotificationType type,
+            Long jobId) {
         Notification notification = createNotification(userId, title, message, type);
+        if (jobId != null) {
+            Job job = jobRepository.findById(jobId).orElse(null);
+            notification.setJob(job);
+            notificationRepository.save(notification);
+        }
         return notification;
     }
 

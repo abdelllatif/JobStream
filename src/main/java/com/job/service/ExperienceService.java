@@ -8,9 +8,14 @@ import java.util.List;
 
 public interface ExperienceService {
     ExperienceResponseDTO create(ExperienceCreateRequestDTO dto);
-    ExperienceResponseDTO getById(Long id);
-    List<ExperienceResponseDTO> getAll();
-    ExperienceResponseDTO update(Long id, ExperienceUpdateRequestDTO dto);
-    void delete(Long id);
-}
 
+    ExperienceResponseDTO getById(Long id);
+
+    List<ExperienceResponseDTO> getAll();
+
+    ExperienceResponseDTO update(Long id, ExperienceUpdateRequestDTO dto);
+
+    void delete(Long id);
+
+    List<ExperienceResponseDTO> getExperiencesByProfile(Long candidateProfileId);
+}

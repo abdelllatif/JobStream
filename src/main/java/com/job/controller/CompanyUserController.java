@@ -34,6 +34,10 @@ public class CompanyUserController {
 
     @GetMapping("/user/{userId}")
     public List<CompanyUserResponseDTO> getUserCompanies(@PathVariable Long userId) {
+        Long currentUserId = authUtil.getCurrentUserId();
+        if (!currentUserId.equals(userId)) {
+            throw new RuntimeException("Access denied: You can only view your own companies");
+        }
         return companyUserService.getUserCompanies(userId);
     }
 

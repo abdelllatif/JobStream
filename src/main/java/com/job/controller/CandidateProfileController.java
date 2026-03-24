@@ -3,12 +3,11 @@ package com.job.controller;
 import com.job.dto.request.CandidateProfileCreateRequestDTO;
 import com.job.dto.request.CandidateProfileUpdateRequestDTO;
 import com.job.dto.response.CandidateProfileResponseDTO;
+import com.job.entity.CandidateProfile;
 import com.job.service.CandidateProfileService;
 import com.job.util.AuthUtil;
 import com.job.util.ProfileAccessChecker;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public class CandidateProfileController {
     private final AuthUtil authUtil;
     private final ProfileAccessChecker profileAccessChecker;
     @PostMapping
-    public CandidateProfileResponseDTO create(@RequestBody CandidateProfileCreateRequestDTO dto, UserDetails authenticatedPrincipal) {
+    public CandidateProfileResponseDTO create(@RequestBody CandidateProfileCreateRequestDTO dto) {
 
         Long userId = authUtil.getCurrentUserId();
         dto.setUserId(userId);
@@ -36,9 +35,27 @@ public class CandidateProfileController {
         return candidateProfileService.getById(id);
     }
 
+    @GetMapping("/user/{userId}")
+    public CandidateProfileResponseDTO getByUserId(@PathVariable Long userId) {
+        return candidateProfileService.getByUserId(userId);
+    }
+
     @GetMapping
     public List<CandidateProfileResponseDTO> getAll() {
         return candidateProfileService.getAll();
+    }
+
+    @GetMapping("/me")
+    public CandidateProfileResponseDTO getMyProfile() {
+        Long userId = authUtil.getCurrentUserId();
+        return candidateProfileService.getByUserId(userId);
+    }
+
+    @PutMapping("/me")
+    public CandidateProfileResponseDTO updateMyProfile(@RequestBody CandidateProfileUpdateRequestDTO dto) {
+        Long userId = authUtil.getCurrentUserId();
+        CandidateProfile profile = candidateProfileService.getEntityByUserId(userId);
+        return candidateProfileService.update(profile.getId(), dto);
     }
 
     @PutMapping("/{id}")
@@ -46,6 +63,8 @@ public class CandidateProfileController {
         profileAccessChecker.canAccessProfile(id);
         return candidateProfileService.update(id, dto);
     }
+
+
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {

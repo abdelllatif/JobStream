@@ -1,10 +1,11 @@
-package com.job.dto;
+package com.job.dto.response;
 
 import lombok.Data;
 
 @Data
 public class AuthResponse {
     private String token;
+    private String refreshToken;
     private Long userId;
     private String email;
     private String role;

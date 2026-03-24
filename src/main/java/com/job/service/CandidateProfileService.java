@@ -9,11 +9,20 @@ import java.util.List;
 
 public interface CandidateProfileService {
     CandidateProfileResponseDTO create(CandidateProfileCreateRequestDTO dto);
+
     CandidateProfileResponseDTO getById(Long id);
+
     List<CandidateProfileResponseDTO> getAll();
+
     CandidateProfileResponseDTO update(Long id, CandidateProfileUpdateRequestDTO dto);
+
     void delete(Long id);
 
     CandidateProfile getEntityById(Long id);
-}
 
+    CandidateProfile getEntityByUserId(Long userId);
+
+    void updateCvUrl(Long userId, String cvUrl);
+
+    CandidateProfileResponseDTO getByUserId(Long userId);
+}

@@ -12,5 +12,9 @@ public interface ApplicationService {
     List<ApplicationResponseDTO> getAll();
     ApplicationResponseDTO update(Long id, ApplicationUpdateRequestDTO dto);
     void delete(Long id);
+
+    Long countByUserId(Long userId);
+    boolean hasApplied(Long jobId, Long userId);
+    List<ApplicationResponseDTO> getApplicationsByUserId(Long userId);
 }
 

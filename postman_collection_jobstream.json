@@ -1,0 +1,140 @@
+{
+  "info": {
+    "name": "JobStream API - Frontend Collection",
+    "_postman_id": "jobstream-collection-1",
+    "description": "Collection utilisée pour le développement frontend. Variables: baseUrl, token, userId, jobId, companyId, profileId, applicationId, messageId",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "1" },
+    { "key": "jobId", "value": "1" },
+    { "key": "companyId", "value": "1" },
+    { "key": "profileId", "value": "1" },
+    { "key": "applicationId", "value": "1" },
+    { "key": "messageId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"CANDIDATE\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api","auth","logout"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Get All Jobs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/jobs?page=0&size=20", "host": ["{{baseUrl}}"], "path": ["api","jobs"], "query": [ {"key":"page","value":"0"},{"key":"size","value":"20"} ] }
+          }
+        },
+        {
+          "name": "Get Job By Id",
+          "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/jobs/{{jobId}}", "host": ["{{baseUrl}}"], "path": ["api","jobs","{{jobId}}"] } }
+        ,
+        {
+          "name": "Create Job",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Développeur Java Senior\",\n  \"description\": \"Nous recherchons...\",\n  \"location\": \"Paris\",\n  \"contractType\": \"CDI\",\n  \"companyId\": 1,\n  \"domainId\": 1\n}" },
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api","jobs"] }
+          }
+        },
+        {
+          "name": "Update Job",
+          "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Titre mis à jour\",\n  \"description\": \"Description mise à jour\"\n}" }, "url": { "raw": "{{baseUrl}}/api/jobs/{{jobId}}", "host": ["{{baseUrl}}"], "path": ["api","jobs","{{jobId}}"] } }
+        },
+        { "name": "Delete Job", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/jobs/{{jobId}}", "host": ["{{baseUrl}}"], "path": ["api","jobs","{{jobId}}"] } } }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        { "name": "Get All Companies", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/companies", "host": ["{{baseUrl}}"], "path": ["api","companies"] } } },
+        { "name": "Get Company By Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/companies/{{companyId}}", "host": ["{{baseUrl}}"], "path": ["api","companies","{{companyId}}"] } } },
+        { "name": "Create Company", "request": { "method": "POST", "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tech Company\",\n  \"description\": \"Une entreprise technologique\",\n  \"website\": \"https://techcompany.com\",\n  \"industry\": \"Technology\",\n  \"size\": \"100-500\",\n  \"location\": \"Paris, France\"\n}" }, "url": { "raw": "{{baseUrl}}/api/companies", "host": ["{{baseUrl}}"], "path": ["api","companies"] } } },
+        { "name": "Update Company", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Company Name\",\n  \"description\": \"Description mise à jour\"\n}" }, "url": { "raw": "{{baseUrl}}/api/companies/{{companyId}}", "host": ["{{baseUrl}}"], "path": ["api","companies","{{companyId}}"] } } },
+        { "name": "Delete Company", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/companies/{{companyId}}", "host": ["{{baseUrl}}"], "path": ["api","companies","{{companyId}}"] } } }
+      ]
+    },
+    {
+      "name": "Candidate Profiles",
+      "item": [
+        { "name": "Get All Profiles", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/candidate-profiles", "host": ["{{baseUrl}}"], "path": ["api","candidate-profiles"] } } },
+        { "name": "Get Profile By Id", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/candidate-profiles/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["api","candidate-profiles","{{profileId}}"] }, "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ] } },
+        { "name": "Create Profile", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Développeur Full Stack\",\n  \"summary\": \"5+ ans...\",\n  \"skills\": [\"Java\", \"Spring Boot\"],\n  \"experience\": \"5 ans\",\n  \"education\": \"Master\",\n  \"location\": \"Paris\",\n  \"resumeUrl\": \"https://example.com/cv.pdf\"\n}" }, "url": { "raw": "{{baseUrl}}/api/candidate-profiles", "host": ["{{baseUrl}}"], "path": ["api","candidate-profiles"] } } },
+        { "name": "Update Profile", "request": { "method": "PUT", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"summary\": \"Résumé mis à jour...\"\n}" }, "url": { "raw": "{{baseUrl}}/api/candidate-profiles/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["api","candidate-profiles","{{profileId}}"] } } },
+        { "name": "Delete Profile", "request": { "method": "DELETE", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/candidate-profiles/{{profileId}}", "host": ["{{baseUrl}}"], "path": ["api","candidate-profiles","{{profileId}}"] } } }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        { "name": "Send Message (query params)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/messages/send?senderId={{userId}}&receiverId={{receiverId}}&content=Hello&jobId={{jobId}}", "host": ["{{baseUrl}}"], "path": ["api","messages","send"], "query": [ {"key":"senderId","value":"{{userId}}"},{"key":"receiverId","value":"2"},{"key":"content","value":"Hello"},{"key":"jobId","value":"{{jobId}}"} ] } } },
+        { "name": "Get Conversation", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/messages/conversation/{{userId}}/{{receiverId}}", "host": ["{{baseUrl}}"], "path": ["api","messages","conversation","{{userId}}","{{receiverId}}"] } } },
+        { "name": "Get Unread Count", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/messages/unread-count/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api","messages","unread-count","{{userId}}"] } } }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        { "name": "Create Application", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ], "body": { "mode": "raw", "raw": "{\n  \"candidateProfileId\": 1,\n  \"jobId\": 1,\n  \"status\": \"PENDING\"\n}" }, "url": { "raw": "{{baseUrl}}/api/appllications", "host": ["{{baseUrl}}"], "path": ["api","appllications"] } } },
+        { "name": "Get All Applications", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/appllications", "host": ["{{baseUrl}}"], "path": ["api","appllications"] } } }
+      ]
+    },
+    {
+      "name": "Files",
+      "item": [
+        { "name": "Upload File (multipart)", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file" }, { "key": "directory", "value": "uploads" } ] }, "url": { "raw": "{{baseUrl}}/api/files/upload", "host": ["{{baseUrl}}"], "path": ["api","files","upload"] } } },
+        { "name": "Upload CV", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "body": { "mode": "formdata", "formdata": [ { "key": "file", "type": "file" }, { "key": "userId", "value": "{{userId}}" } ] }, "url": { "raw": "{{baseUrl}}/api/files/upload-cv", "host": ["{{baseUrl}}"], "path": ["api","files","upload-cv"] } } }
+      ]
+    },
+    {
+      "name": "Search",
+      "item": [
+        { "name": "Search Jobs", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/search/jobs?keyword=Java&location=Paris&page=0&size=20", "host": ["{{baseUrl}}"], "path": ["api","search","jobs"], "query": [ {"key":"keyword","value":"Java"},{"key":"location","value":"Paris"},{"key":"page","value":"0"},{"key":"size","value":"20"} ] } } },
+        { "name": "Advanced Search Jobs", "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/api/search/jobs/advanced?keyword=Java&minSalary=50000&maxSalary=80000&remote=true&page=0&size=20", "host": ["{{baseUrl}}"], "path": ["api","search","jobs","advanced"], "query": [ {"key":"keyword","value":"Java"},{"key":"minSalary","value":"50000"},{"key":"maxSalary","value":"80000"},{"key":"remote","value":"true"},{"key":"page","value":"0"},{"key":"size","value":"20"} ] } } }
+      ]
+    },
+    {
+      "name": "Premium",
+      "item": [
+        { "name": "Subscribe", "request": { "method": "POST", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/premium/subscribe?userId={{userId}}&planType=PREMIUM_MONTHLY", "host": ["{{baseUrl}}"], "path": ["api","premium","subscribe"], "query": [ {"key":"userId","value":"{{userId}}"},{"key":"planType","value":"PREMIUM_MONTHLY"} ] } } },
+        { "name": "Get Plans", "request": { "method": "GET", "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ], "url": { "raw": "{{baseUrl}}/api/premium/plans", "host": ["{{baseUrl}}"], "path": ["api","premium","plans"] } } }
+      ]
+    }
+  ]
+}
+

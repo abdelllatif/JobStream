@@ -16,7 +16,7 @@ public class Notification {
     private String title;
     private String message;
     private boolean read;
-    
+
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
@@ -27,6 +27,10 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "candidate_profile_id")
     private CandidateProfile candidateProfile;
+
+    @ManyToOne
+    @JoinColumn(name = "job_id")
+    private Job job;
 
     private LocalDateTime createdAt;
 }

@@ -1,4 +1,5 @@
 package com.job.entity;
+
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.Data;
@@ -7,7 +8,8 @@ import lombok.Data;
 @Data
 @Table(name = "candidate_profiles")
 public class CandidateProfile {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
@@ -17,6 +19,10 @@ public class CandidateProfile {
     private String phone;
     private String address;
     private String summary;
+    private String jobTitle;
+    private String linkedinProfile;
+    private String githubProfile;
+    private String portfolioUrl;
 
     @OneToMany(mappedBy = "candidateProfile", cascade = CascadeType.ALL)
     private List<Experience> experiences;

@@ -6,8 +6,9 @@ import com.job.dto.response.CandidateProfileResponseDTO;
 import com.job.entity.CandidateProfile;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CandidateProfileMapper {
 
     @Mapping(target = "id", ignore = true)
@@ -31,4 +32,3 @@ public interface CandidateProfileMapper {
     @Mapping(target = "userId", expression = "java(candidateProfile.getUser() != null ? candidateProfile.getUser().getId() : null)")
     CandidateProfileResponseDTO toResponse(CandidateProfile candidateProfile);
 }
-

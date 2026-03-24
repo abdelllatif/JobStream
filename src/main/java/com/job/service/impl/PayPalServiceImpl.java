@@ -9,6 +9,7 @@ import com.job.repository.PaymentRepository;
 import com.job.repository.PremiumSubscriptionRepository;
 import com.job.repository.UserRepository;
 import com.job.service.PayPalService;
+import com.job.websocket.NotificationBroadcaster;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,7 @@ public class PayPalServiceImpl implements PayPalService {
     private final PaymentRepository paymentRepository;
     private final PremiumSubscriptionRepository premiumSubscriptionRepository;
     private final UserRepository userRepository;
+    private final NotificationBroadcaster notificationBroadcaster;
 
     @Value("${paypal.mode:sandbox}")
     private String paypalMode;
@@ -82,7 +84,17 @@ public class PayPalServiceImpl implements PayPalService {
         Payment savedPayment = paymentRepository.save(payment);
         
         // Process the successful payment
-        processSuccessfulPayment(savedPayment);
+        PremiumSubscription subscription = processSuccessfulPayment(savedPayment);
+
+        // Notify user about successful payment / premium activation
+        Long userId = savedPayment.getUser().getId();
+        String title = "Paiement réussi";
+        String message = "Votre abonnement premium a été activé avec succès.";
+        notificationBroadcaster.broadcastNotification(
+                userId,
+                title,
+                message,
+                com.job.enums.NotificationType.PAYMENT_SUCCESSFUL);
         
         log.info("Executed PayPal payment {}: {}", paymentId, savedPayment.getStatus());
         return savedPayment;
@@ -105,7 +117,17 @@ public class PayPalServiceImpl implements PayPalService {
         Payment savedPayment = paymentRepository.save(payment);
         
         // Process the successful payment
-        processSuccessfulPayment(savedPayment);
+        PremiumSubscription subscription = processSuccessfulPayment(savedPayment);
+
+        // Notify user about successful payment / premium activation
+        Long userId = savedPayment.getUser().getId();
+        String title = "Paiement réussi";
+        String message = "Votre abonnement premium a été activé avec succès.";
+        notificationBroadcaster.broadcastNotification(
+                userId,
+                title,
+                message,
+                com.job.enums.NotificationType.PAYMENT_SUCCESSFUL);
         
         log.info("Captured PayPal payment for order {}: {}", orderId, savedPayment.getStatus());
         return savedPayment;
@@ -209,6 +231,16 @@ public class PayPalServiceImpl implements PayPalService {
             payment.setStatus(PaymentStatus.FAILED);
             payment.setUpdatedAt(LocalDateTime.now());
             paymentRepository.save(payment);
+            
+            // Notify user about failed payment
+            Long userId = payment.getUser().getId();
+            String title = "Paiement échoué";
+            String message = "Votre paiement a échoué : " + reason;
+            notificationBroadcaster.broadcastNotification(
+                    userId,
+                    title,
+                    message,
+                    com.job.enums.NotificationType.PAYMENT_FAILED);
             
             log.error("Payment failed for {}: {}", paymentId, reason);
         }

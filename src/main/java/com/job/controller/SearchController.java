@@ -3,6 +3,7 @@ package com.job.controller;
 import com.job.entity.Job;
 import com.job.entity.User;
 import com.job.service.SearchService;
+import com.job.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -13,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/search")
@@ -22,6 +22,7 @@ import java.util.Map;
 public class SearchController {
 
     private final SearchService searchService;
+    private final AuthUtil authUtil;
 
     @GetMapping("/jobs")
     public ResponseEntity<Page<Job>> searchJobs(
@@ -79,16 +80,16 @@ public class SearchController {
         }
     }
 
-    @GetMapping("/jobs/recommended/{userId}")
+    @GetMapping("/jobs/recommended")
     @PreAuthorize("hasAnyRole('CANDIDATE', 'RECRUITER', 'ADMIN')")
     public ResponseEntity<List<Job>> getRecommendedJobs(
-            @PathVariable Long userId,
             @RequestParam(defaultValue = "10") int limit) {
         try {
+            Long userId = authUtil.getCurrentUserId();
             List<Job> jobs = searchService.getRecommendedJobs(userId, limit);
             return ResponseEntity.ok(jobs);
         } catch (Exception e) {
-            log.error("Error getting recommended jobs for user {}: {}", userId, e.getMessage());
+            log.error("Error getting recommended jobs for current user: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
@@ -185,6 +186,16 @@ public class SearchController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             log.error("Error deleting user {} from index: {}", userId, e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/global")
+    public ResponseEntity<com.job.dto.response.GlobalSearchResponseDTO> globalSearch(@RequestParam String query) {
+        try {
+            return ResponseEntity.ok(searchService.globalSearch(query));
+        } catch (Exception e) {
+            log.error("Error in global search for query '{}': {}", query, e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }

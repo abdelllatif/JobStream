@@ -2,70 +2,143 @@
   "info": {
     "_postman_id": "jobstream-api-collection",
     "name": "JobStream API Collection",
-    "description": "Complete API collection for JobStream backend testing",
+    "description": "Complete API collection for the JobStream application",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
   "item": [
     {
-      "name": "Authentication",
+      "name": "Auth",
       "item": [
         {
-          "name": "Register User",
+          "name": "Register",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"CANDIDATE\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
           }
         },
         {
           "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["var json = pm.response.json();", "pm.collectionVariables.set('token', json.token);"],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"password123\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
           }
         },
         {
-          "name": "Logout",
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"your-refresh-token\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/refresh", "host": ["{{baseUrl}}"], "path": ["api", "auth", "refresh"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Domains",
+      "item": [
+        {
+          "name": "Create Domain",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/api/auth/logout",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "logout"]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Information Technology\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/domains", "host": ["{{baseUrl}}"], "path": ["api", "domains"] }
+          }
+        },
+        {
+          "name": "Get All Domains",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/domains", "host": ["{{baseUrl}}"], "path": ["api", "domains"] }
+          }
+        },
+        {
+          "name": "Get Domain By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/domains/1", "host": ["{{baseUrl}}"], "path": ["api", "domains", "1"] }
+          }
+        },
+        {
+          "name": "Get Domain By Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/domains/name/Information Technology", "host": ["{{baseUrl}}"], "path": ["api", "domains", "name", "Information Technology"] }
+          }
+        },
+        {
+          "name": "Update Domain",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Software Engineering\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/domains/1", "host": ["{{baseUrl}}"], "path": ["api", "domains", "1"] }
+          }
+        },
+        {
+          "name": "Delete Domain",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/domains/1", "host": ["{{baseUrl}}"], "path": ["api", "domains", "1"] }
+          }
+        },
+        {
+          "name": "Check Domain Exists By Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/domains/exists/Information Technology", "host": ["{{baseUrl}}"], "path": ["api", "domains", "exists", "Information Technology"] }
           }
         }
       ]
@@ -78,46 +151,30 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Senior Java Developer\",\n  \"description\": \"We are looking for an experienced Java developer...\",\n  \"location\": \"Paris\",\n  \"contractType\": \"CDI\",\n  \"companyId\": 1,\n  \"domainId\": 1\n}"
+              "raw": "{\n  \"title\": \"Backend Developer\",\n  \"description\": \"We are looking for a backend developer.\",\n  \"location\": \"Paris, France\",\n  \"contractType\": \"CDI\",\n  \"companyId\": 1,\n  \"domainId\": 1,\n  \"externalLink\": \"https://example.com/apply\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/jobs",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jobs"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
           }
         },
         {
           "name": "Get All Jobs",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/jobs",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jobs"]
-            }
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/jobs", "host": ["{{baseUrl}}"], "path": ["api", "jobs"] }
           }
         },
         {
-          "name": "Get Job by ID",
+          "name": "Get Job By ID",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/jobs/{{jobId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jobs", "{{jobId}}"]
-            }
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/jobs/1", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "1"] }
           }
         },
         {
@@ -125,147 +182,22 @@
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated Job Title\",\n  \"description\": \"Updated description...\",\n  \"location\": \"Lyon\",\n  \"contractType\": \"CDD\",\n  \"companyId\": 1,\n  \"domainId\": 1\n}"
+              "raw": "{\n  \"title\": \"Senior Backend Developer\",\n  \"description\": \"Updated description.\",\n  \"location\": \"Lyon, France\",\n  \"contractType\": \"CDD\",\n  \"active\": true,\n  \"domainId\": 2,\n  \"externalLink\": \"https://example.com/apply-updated\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/jobs/{{jobId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jobs", "{{jobId}}"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/jobs/1", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "1"] }
           }
         },
         {
           "name": "Delete Job",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/jobs/{{jobId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "jobs", "{{jobId}}"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Applications",
-      "item": [
-        {
-          "name": "Create Application",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"jobId\": 1,\n  \"candidateId\": 1,\n  \"coverLetter\": \"I am very interested in this position...\",\n  \"status\": \"PENDING\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/applications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "applications"]
-            }
-          }
-        },
-        {
-          "name": "Get All Applications",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/applications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "applications"]
-            }
-          }
-        },
-        {
-          "name": "Get Application by ID",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/applications/{{applicationId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "applications", "{{applicationId}}"]
-            }
-          }
-        },
-        {
-          "name": "Update Application",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"ACCEPTED\",\n  \"coverLetter\": \"Updated cover letter...\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/applications/{{applicationId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "applications", "{{applicationId}}"]
-            }
-          }
-        },
-        {
-          "name": "Delete Application",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/applications/{{applicationId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "applications", "{{applicationId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/jobs/1", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "1"] }
           }
         }
       ]
@@ -278,46 +210,30 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Tech Company\",\n  \"description\": \"A leading technology company\",\n  \"website\": \"https://techcompany.com\",\n  \"industry\": \"Technology\",\n  \"size\": \"100-500\",\n  \"location\": \"Paris, France\"\n}"
+              "raw": "{\n  \"name\": \"Tech Corp\",\n  \"description\": \"A leading tech company.\",\n  \"website\": \"https://techcorp.com\",\n  \"location\": \"Paris, France\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/companies",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "companies"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/companies", "host": ["{{baseUrl}}"], "path": ["api", "companies"] }
           }
         },
         {
           "name": "Get All Companies",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/companies",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "companies"]
-            }
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/companies", "host": ["{{baseUrl}}"], "path": ["api", "companies"] }
           }
         },
         {
-          "name": "Get Company by ID",
+          "name": "Get Company By ID",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/companies/{{companyId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "companies", "{{companyId}}"]
-            }
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/companies/1", "host": ["{{baseUrl}}"], "path": ["api", "companies", "1"] }
           }
         },
         {
@@ -325,41 +241,133 @@
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Company Name\",\n  \"description\": \"Updated description...\",\n  \"website\": \"https://updatedcompany.com\",\n  \"industry\": \"Software\",\n  \"size\": \"500-1000\",\n  \"location\": \"Lyon, France\"\n}"
+              "raw": "{\n  \"name\": \"Tech Corp Updated\",\n  \"description\": \"Updated description.\",\n  \"website\": \"https://techcorp.com\",\n  \"location\": \"Lyon, France\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/companies/{{companyId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "companies", "{{companyId}}"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/companies/1", "host": ["{{baseUrl}}"], "path": ["api", "companies", "1"] }
           }
         },
         {
           "name": "Delete Company",
           "request": {
             "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/companies/1", "host": ["{{baseUrl}}"], "path": ["api", "companies", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Company Users",
+      "item": [
+        {
+          "name": "Join Company",
+          "request": {
+            "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/api/companies/{{companyId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "companies", "{{companyId}}"]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyId\": 1,\n  \"companyRole\": \"RECRUITER\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/company-users/join", "host": ["{{baseUrl}}"], "path": ["api", "company-users", "join"] }
+          }
+        },
+        {
+          "name": "Get All Company Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/company-users", "host": ["{{baseUrl}}"], "path": ["api", "company-users"] }
+          }
+        },
+        {
+          "name": "Get Company User By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/company-users/1", "host": ["{{baseUrl}}"], "path": ["api", "company-users", "1"] }
+          }
+        },
+        {
+          "name": "Delete Company User",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/company-users/1", "host": ["{{baseUrl}}"], "path": ["api", "company-users", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Applications",
+      "item": [
+        {
+          "name": "Create Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobId\": 1\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/appllications", "host": ["{{baseUrl}}"], "path": ["api", "appllications"] }
+          }
+        },
+        {
+          "name": "Get All Applications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/appllications", "host": ["{{baseUrl}}"], "path": ["api", "appllications"] }
+          }
+        },
+        {
+          "name": "Get Application By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/appllications/1", "host": ["{{baseUrl}}"], "path": ["api", "appllications", "1"] }
+          }
+        },
+        {
+          "name": "Update Application",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACCEPTED\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/appllications/1", "host": ["{{baseUrl}}"], "path": ["api", "appllications", "1"] }
+          }
+        },
+        {
+          "name": "Delete Application",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/appllications/1", "host": ["{{baseUrl}}"], "path": ["api", "appllications", "1"] }
+          }
+        },
+        {
+          "name": "Count Applications By User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/appllications/count", "host": ["{{baseUrl}}"], "path": ["api", "appllications", "count"] }
           }
         }
       ]
@@ -372,52 +380,30 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Software Engineer\",\n  \"summary\": \"Experienced software engineer with 5+ years...\",\n  \"skills\": [\"Java\", \"Spring Boot\", \"React\"],\n  \"experience\": \"5 years\",\n  \"education\": \"Bachelor's in Computer Science\",\n  \"location\": \"Paris\",\n  \"resumeUrl\": \"https://example.com/resume.pdf\"\n}"
+              "raw": "{\n  \"phone\": \"+1234567890\",\n  \"address\": \"123 Main St, City, Country\",\n  \"summary\": \"Experienced developer\",\n  \"cvUrl\": \"http://example.com/cv.pdf\"\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/candidate-profiles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "candidate-profiles"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/candidate-profiles", "host": ["{{baseUrl}}"], "path": ["api", "candidate-profiles"] }
           }
         },
         {
           "name": "Get All Candidate Profiles",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/candidate-profiles",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "candidate-profiles"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/candidate-profiles", "host": ["{{baseUrl}}"], "path": ["api", "candidate-profiles"] }
           }
         },
         {
-          "name": "Get Candidate Profile by ID",
+          "name": "Get Candidate Profile By ID",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/candidate-profiles/{{profileId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "candidate-profiles", "{{profileId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/candidate-profiles/1", "host": ["{{baseUrl}}"], "path": ["api", "candidate-profiles", "1"] }
           }
         },
         {
@@ -425,41 +411,199 @@
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Senior Software Engineer\",\n  \"summary\": \"Updated summary...\",\n  \"skills\": [\"Java\", \"Spring Boot\", \"React\", \"Docker\"],\n  \"experience\": \"6 years\",\n  \"education\": \"Master's in Computer Science\",\n  \"location\": \"Lyon\",\n  \"resumeUrl\": \"https://example.com/updated-resume.pdf\"\n}"
+              "raw": "{\n  \"bio\": \"Updated bio.\",\n  \"skills\": [\"Java\", \"Spring Boot\", \"Docker\"],\n  \"domainId\": 2\n}"
             },
-            "url": {
-              "raw": "{{baseUrl}}/api/candidate-profiles/{{profileId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "candidate-profiles", "{{profileId}}"]
-            }
+            "url": { "raw": "{{baseUrl}}/api/candidate-profiles/1", "host": ["{{baseUrl}}"], "path": ["api", "candidate-profiles", "1"] }
           }
         },
         {
           "name": "Delete Candidate Profile",
           "request": {
             "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/candidate-profiles/1", "host": ["{{baseUrl}}"], "path": ["api", "candidate-profiles", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Experiences",
+      "item": [
+        {
+          "name": "Create Experience",
+          "request": {
+            "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/api/candidate-profiles/{{profileId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "candidate-profiles", "{{profileId}}"]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Software Engineer\",\n  \"company\": \"Tech Corp\",\n  \"startDate\": \"2020-01-01\",\n  \"endDate\": \"2022-12-31\",\n  \"description\": \"Developed microservices with Spring Boot.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/experiences", "host": ["{{baseUrl}}"], "path": ["api", "experiences"] }
+          }
+        },
+        {
+          "name": "Get All Experiences",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/experiences", "host": ["{{baseUrl}}"], "path": ["api", "experiences"] }
+          }
+        },
+        {
+          "name": "Get Experience By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/experiences/1", "host": ["{{baseUrl}}"], "path": ["api", "experiences", "1"] }
+          }
+        },
+        {
+          "name": "Update Experience",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Senior Software Engineer\",\n  \"company\": \"Tech Corp\",\n  \"startDate\": \"2020-01-01\",\n  \"endDate\": \"2023-06-30\",\n  \"description\": \"Led a team of developers.\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/experiences/1", "host": ["{{baseUrl}}"], "path": ["api", "experiences", "1"] }
+          }
+        },
+        {
+          "name": "Delete Experience",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/experiences/1", "host": ["{{baseUrl}}"], "path": ["api", "experiences", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Education",
+      "item": [
+        {
+          "name": "Create Education",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"University of Paris\",\n  \"degree\": \"Master's in Computer Science\",\n  \"startDate\": \"2018-09-01\",\n  \"endDate\": \"2020-06-30\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/educations", "host": ["{{baseUrl}}"], "path": ["api", "educations"] }
+          }
+        },
+        {
+          "name": "Get All Educations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/educations", "host": ["{{baseUrl}}"], "path": ["api", "educations"] }
+          }
+        },
+        {
+          "name": "Get Education By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/educations/1", "host": ["{{baseUrl}}"], "path": ["api", "educations", "1"] }
+          }
+        },
+        {
+          "name": "Update Education",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"institution\": \"Paris Tech\",\n  \"degree\": \"PhD in Computer Science\",\n  \"startDate\": \"2020-09-01\",\n  \"endDate\": \"2024-06-30\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/educations/1", "host": ["{{baseUrl}}"], "path": ["api", "educations", "1"] }
+          }
+        },
+        {
+          "name": "Delete Education",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/educations/1", "host": ["{{baseUrl}}"], "path": ["api", "educations", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Connections",
+      "item": [
+        {
+          "name": "Send Connection Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/connections/request?receiverId=2", "host": ["{{baseUrl}}"], "path": ["api", "connections", "request"], "query": [{ "key": "receiverId", "value": "2" }] }
+          }
+        },
+        {
+          "name": "Get All Connections",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/connections", "host": ["{{baseUrl}}"], "path": ["api", "connections"] }
+          }
+        },
+        {
+          "name": "Get Connection By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/connections/1", "host": ["{{baseUrl}}"], "path": ["api", "connections", "1"] }
+          }
+        },
+        {
+          "name": "Update Connection (Accept/Reject)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACCEPTED\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/connections/1", "host": ["{{baseUrl}}"], "path": ["api", "connections", "1"] }
+          }
+        },
+        {
+          "name": "Delete Connection",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/connections/1", "host": ["{{baseUrl}}"], "path": ["api", "connections", "1"] }
           }
         }
       ]
@@ -472,231 +616,147 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/send?senderId={{senderId}}&receiverId={{receiverId}}&content=Hello, I am interested in your job posting&jobId={{jobId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "send"],
-              "query": [
-                {
-                  "key": "senderId",
-                  "value": "{{senderId}}"
-                },
-                {
-                  "key": "receiverId",
-                  "value": "{{receiverId}}"
-                },
-                {
-                  "key": "content",
-                  "value": "Hello, I am interested in your job posting"
-                },
-                {
-                  "key": "jobId",
-                  "value": "{{jobId}}"
-                }
-              ]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/messages/send?receiverId=2&content=Hello&jobId=1", "host": ["{{baseUrl}}"], "path": ["api", "messages", "send"], "query": [{ "key": "receiverId", "value": "2" }, { "key": "content", "value": "Hello" }, { "key": "jobId", "value": "1" }] }
           }
         },
         {
-          "name": "Get Message by ID",
+          "name": "Get All Messages",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/{{messageId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "{{messageId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/messages", "host": ["{{baseUrl}}"], "path": ["api", "messages"] }
           }
         },
         {
-          "name": "Get Conversation",
+          "name": "Get Message By ID",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/conversation/{{userId1}}/{{userId2}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "conversation", "{{userId1}}", "{{userId2}}"]
-            }
-          }
-        },
-        {
-          "name": "Get Conversation Paginated",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/conversation/{{userId1}}/{{userId2}}/paginated?page=0&size=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "conversation", "{{userId1}}", "{{userId2}}", "paginated"],
-              "query": [
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get User Messages",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/user/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "user", "{{userId}}"]
-            }
-          }
-        },
-        {
-          "name": "Get Unread Messages",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/unread/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "unread", "{{userId}}"]
-            }
-          }
-        },
-        {
-          "name": "Mark Message as Read",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/read/{{messageId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "read", "{{messageId}}"]
-            }
-          }
-        },
-        {
-          "name": "Mark Conversation as Read",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/read-conversation/{{userId1}}/{{userId2}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "read-conversation", "{{userId1}}", "{{userId2}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/messages/1", "host": ["{{baseUrl}}"], "path": ["api", "messages", "1"] }
           }
         },
         {
           "name": "Delete Message",
           "request": {
             "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/{{messageId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "{{messageId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/messages/1", "host": ["{{baseUrl}}"], "path": ["api", "messages", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get All Notifications",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notifications", "host": ["{{baseUrl}}"], "path": ["api", "notifications"] }
           }
         },
         {
-          "name": "Delete Conversation",
+          "name": "Get Notification By ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notifications/1", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "1"] }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notifications/1/read", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "1", "read"] }
+          }
+        },
+        {
+          "name": "Delete Notification",
           "request": {
             "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notifications/1", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile Visits",
+      "item": [
+        {
+          "name": "Record Profile Visit",
+          "request": {
+            "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/conversation/{{userId1}}/{{userId2}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "conversation", "{{userId1}}", "{{userId2}}"]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/profile-visits/record?profileOwnerId=2", "host": ["{{baseUrl}}"], "path": ["api", "profile-visits", "record"], "query": [{ "key": "profileOwnerId", "value": "2" }] }
           }
         },
         {
-          "name": "Get Unread Count",
+          "name": "Get All Profile Visits",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/unread-count/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "unread-count", "{{userId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/profile-visits", "host": ["{{baseUrl}}"], "path": ["api", "profile-visits"] }
           }
         },
         {
-          "name": "Get Conversation Partners",
+          "name": "Get Profile Visits By Profile ID",
           "request": {
             "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/profile-visits/profile/1", "host": ["{{baseUrl}}"], "path": ["api", "profile-visits", "profile", "1"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Premium Subscriptions",
+      "item": [
+        {
+          "name": "Subscribe to Premium",
+          "request": {
+            "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
             ],
-            "url": {
-              "raw": "{{baseUrl}}/api/messages/partners/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "messages", "partners", "{{userId}}"]
-            }
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/premium/subscribe?planType=MONTHLY", "host": ["{{baseUrl}}"], "path": ["api", "premium", "subscribe"], "query": [{ "key": "planType", "value": "MONTHLY" }] }
+          }
+        },
+        {
+          "name": "Get Premium Subscription By User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/premium/my", "host": ["{{baseUrl}}"], "path": ["api", "premium", "my"] }
+          }
+        },
+        {
+          "name": "Cancel Premium Subscription",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/premium/1", "host": ["{{baseUrl}}"], "path": ["api", "premium", "1"] }
           }
         }
       ]
@@ -708,107 +768,16 @@
           "name": "Search Jobs",
           "request": {
             "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/api/search/jobs?keyword=Java&location=Paris&contractType=CDI&page=0&size=20",
+              "raw": "{{baseUrl}}/api/search/jobs?keyword=developer&location=Paris&domainId=1&contractType=CDI",
               "host": ["{{baseUrl}}"],
               "path": ["api", "search", "jobs"],
               "query": [
-                {
-                  "key": "keyword",
-                  "value": "Java"
-                },
-                {
-                  "key": "location",
-                  "value": "Paris"
-                },
-                {
-                  "key": "contractType",
-                  "value": "CDI"
-                },
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Advanced Job Search",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/search/jobs/advanced?keyword=Java&location=Paris&minSalary=50000&maxSalary=80000&experienceLevel=SENIOR&remote=true&sortBy=postedAt&sortOrder=desc&page=0&size=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search", "jobs", "advanced"],
-              "query": [
-                {
-                  "key": "keyword",
-                  "value": "Java"
-                },
-                {
-                  "key": "location",
-                  "value": "Paris"
-                },
-                {
-                  "key": "minSalary",
-                  "value": "50000"
-                },
-                {
-                  "key": "maxSalary",
-                  "value": "80000"
-                },
-                {
-                  "key": "experienceLevel",
-                  "value": "SENIOR"
-                },
-                {
-                  "key": "remote",
-                  "value": "true"
-                },
-                {
-                  "key": "sortBy",
-                  "value": "postedAt"
-                },
-                {
-                  "key": "sortOrder",
-                  "value": "desc"
-                },
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Recommended Jobs",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/search/jobs/recommended/{{userId}}?limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search", "jobs", "recommended", "{{userId}}"],
-              "query": [
-                {
-                  "key": "limit",
-                  "value": "10"
-                }
+                { "key": "keyword", "value": "developer" },
+                { "key": "location", "value": "Paris" },
+                { "key": "domainId", "value": "1" },
+                { "key": "contractType", "value": "CDI" }
               ]
             }
           }
@@ -817,97 +786,14 @@
           "name": "Search Candidates",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
             "url": {
-              "raw": "{{baseUrl}}/api/search/candidates?keyword=Java&location=Paris&skills=Spring&skills=React&page=0&size=20",
+              "raw": "{{baseUrl}}/api/search/candidates?keyword=java&domainId=1",
               "host": ["{{baseUrl}}"],
               "path": ["api", "search", "candidates"],
               "query": [
-                {
-                  "key": "keyword",
-                  "value": "Java"
-                },
-                {
-                  "key": "location",
-                  "value": "Paris"
-                },
-                {
-                  "key": "skills",
-                  "value": "Spring"
-                },
-                {
-                  "key": "skills",
-                  "value": "React"
-                },
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Search Recruiters",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/search/recruiters?keyword=Tech&company=TechCompany&page=0&size=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search", "recruiters"],
-              "query": [
-                {
-                  "key": "keyword",
-                  "value": "Tech"
-                },
-                {
-                  "key": "company",
-                  "value": "TechCompany"
-                },
-                {
-                  "key": "page",
-                  "value": "0"
-                },
-                {
-                  "key": "size",
-                  "value": "20"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Suggestions",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/api/search/suggestions?query=Java&type=skills",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "search", "suggestions"],
-              "query": [
-                {
-                  "key": "query",
-                  "value": "Java"
-                },
-                {
-                  "key": "type",
-                  "value": "skills"
-                }
+                { "key": "keyword", "value": "java" },
+                { "key": "domainId", "value": "1" }
               ]
             }
           }
@@ -915,252 +801,100 @@
       ]
     },
     {
-      "name": "Payments",
+      "name": "Admin Stats",
       "item": [
         {
-          "name": "Create Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/create?userId={{userId}}&planType=PREMIUM_MONTHLY&amount=9.99&currency=USD",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "create"],
-              "query": [
-                {
-                  "key": "userId",
-                  "value": "{{userId}}"
-                },
-                {
-                  "key": "planType",
-                  "value": "PREMIUM_MONTHLY"
-                },
-                {
-                  "key": "amount",
-                  "value": "9.99"
-                },
-                {
-                  "key": "currency",
-                  "value": "USD"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Approve Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/approve/{{paymentId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "approve", "{{paymentId}}"]
-            }
-          }
-        },
-        {
-          "name": "Execute Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/execute/{{paymentId}}?payerId={{payerId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "execute", "{{paymentId}}"],
-              "query": [
-                {
-                  "key": "payerId",
-                  "value": "{{payerId}}"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Capture Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/capture/{{orderId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "capture", "{{orderId}}"]
-            }
-          }
-        },
-        {
-          "name": "Refund Payment",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/refund/{{paymentId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "refund", "{{paymentId}}"]
-            }
-          }
-        },
-        {
-          "name": "Get Payment by PayPal ID",
+          "name": "Get Dashboard Stats",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/paypal/{{paypalPaymentId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "paypal", "{{paypalPaymentId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/admin/stats", "host": ["{{baseUrl}}"], "path": ["api", "admin", "stats"] }
           }
         },
         {
-          "name": "Get Payment by Order ID",
+          "name": "Get User Stats",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/order/{{orderId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "order", "{{orderId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/admin/stats/users", "host": ["{{baseUrl}}"], "path": ["api", "admin", "stats", "users"] }
           }
         },
         {
-          "name": "Get User Payments",
+          "name": "Get Job Stats",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/payments/user/{{userId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "user", "{{userId}}"]
-            }
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/admin/stats/jobs", "host": ["{{baseUrl}}"], "path": ["api", "admin", "stats", "jobs"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "File Upload",
+      "item": [
+        {
+          "name": "Upload Profile Picture",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "" }]
+            },
+            "url": { "raw": "{{baseUrl}}/api/files/upload-profile-picture", "host": ["{{baseUrl}}"], "path": ["api", "files", "upload", "profile-picture"] }
           }
         },
         {
-          "name": "Get Available Plans",
+          "name": "Upload CV",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "" }]
+            },
+            "url": { "raw": "{{baseUrl}}/api/files/upload-cv", "host": ["{{baseUrl}}"], "path": ["api", "files", "upload", "cv"] }
+          }
+        },
+        {
+          "name": "Upload Company Logo",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": "" }]
+            },
+            "url": { "raw": "{{baseUrl}}/api/files/upload-company-logo", "host": ["{{baseUrl}}"], "path": ["api", "files", "upload", "company-logo"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "OAuth2",
+      "item": [
+        {
+          "name": "OAuth2 Google Login",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/oauth2/authorize/google", "host": ["{{baseUrl}}"], "path": ["oauth2", "authorize", "google"] }
+          }
+        },
+        {
+          "name": "OAuth2 Callback",
+          "request": {
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/payments/plans",
+              "raw": "{{baseUrl}}/api/oauth2/callback?token=",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "payments", "plans"]
+              "path": ["api", "oauth2", "callback"],
+              "query": [{ "key": "token", "value": "" }]
             }
           }
         }
       ]
-    }
-  ],
-  "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:8080"
-    },
-    {
-      "key": "token",
-      "value": ""
-    },
-    {
-      "key": "jobId",
-      "value": "1"
-    },
-    {
-      "key": "applicationId",
-      "value": "1"
-    },
-    {
-      "key": "companyId",
-      "value": "1"
-    },
-    {
-      "key": "profileId",
-      "value": "1"
-    },
-    {
-      "key": "messageId",
-      "value": "1"
-    },
-    {
-      "key": "userId",
-      "value": "1"
-    },
-    {
-      "key": "senderId",
-      "value": "1"
-    },
-    {
-      "key": "receiverId",
-      "value": "2"
-    },
-    {
-      "key": "userId1",
-      "value": "1"
-    },
-    {
-      "key": "userId2",
-      "value": "2"
-    },
-    {
-      "key": "paymentId",
-      "value": "PAY-123456789"
-    },
-    {
-      "key": "payerId",
-      "value": "PAYER-123456789"
-    },
-    {
-      "key": "orderId",
-      "value": "ORDER-123456789"
-    },
-    {
-      "key": "paypalPaymentId",
-      "value": "PAYPAL-123456789"
     }
   ]
 }

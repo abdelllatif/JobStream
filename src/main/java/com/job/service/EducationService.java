@@ -8,9 +8,14 @@ import java.util.List;
 
 public interface EducationService {
     EducationResponseDTO create(EducationCreateRequestDTO dto);
-    EducationResponseDTO getById(Long id);
-    List<EducationResponseDTO> getAll();
-    EducationResponseDTO update(Long id, EducationUpdateRequestDTO dto);
-    void delete(Long id);
-}
 
+    EducationResponseDTO getById(Long id);
+
+    List<EducationResponseDTO> getAll();
+
+    EducationResponseDTO update(Long id, EducationUpdateRequestDTO dto);
+
+    void delete(Long id);
+
+    List<EducationResponseDTO> getEducationsByProfile(Long candidateProfileId);
+}

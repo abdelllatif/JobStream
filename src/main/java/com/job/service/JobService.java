@@ -12,5 +12,6 @@ public interface JobService {
     List<JobResponseDTO> getAll();
     JobResponseDTO update(Long id, JobUpdateRequestDTO dto);
     void delete(Long id);
+    List<JobResponseDTO> getJobsByCompanyId(Long companyId);
 }
 

@@ -19,9 +19,6 @@ public class CompanyCreateRequestDTO {
 
     @Size(max = 255)
     private String logoUrl;
-
-    // userId is usually inferred from auth, but kept here if you need explicit linking
-    private Long userId;
 }
 
 

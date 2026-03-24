@@ -30,7 +30,8 @@ public class ExperienceServiceImpl implements ExperienceService {
         Experience experience = experienceMapper.toEntity(dto);
 
         CandidateProfile candidateProfile = candidateProfileRepository.findById(dto.getCandidateProfileId())
-                .orElseThrow(() -> new RuntimeException("Candidate profile not found with id: " + dto.getCandidateProfileId()));
+                .orElseThrow(() -> new RuntimeException(
+                        "Candidate profile not found with id: " + dto.getCandidateProfileId()));
 
         experience.setCandidateProfile(candidateProfile);
 
@@ -59,11 +60,16 @@ public class ExperienceServiceImpl implements ExperienceService {
 
         Experience updatedExperience = experienceMapper.toEntity(dto);
 
-        if (dto.getTitle() != null) experience.setTitle(updatedExperience.getTitle());
-        if (dto.getCompany() != null) experience.setCompany(updatedExperience.getCompany());
-        if (dto.getStartDate() != null) experience.setStartDate(updatedExperience.getStartDate());
-        if (dto.getEndDate() != null) experience.setEndDate(updatedExperience.getEndDate());
-        if (dto.getDescription() != null) experience.setDescription(updatedExperience.getDescription());
+        if (dto.getTitle() != null)
+            experience.setTitle(updatedExperience.getTitle());
+        if (dto.getCompany() != null)
+            experience.setCompany(updatedExperience.getCompany());
+        if (dto.getStartDate() != null)
+            experience.setStartDate(updatedExperience.getStartDate());
+        if (dto.getEndDate() != null)
+            experience.setEndDate(updatedExperience.getEndDate());
+        if (dto.getDescription() != null)
+            experience.setDescription(updatedExperience.getDescription());
 
         return experienceMapper.toResponse(experienceRepository.save(experience));
     }
@@ -75,5 +81,11 @@ public class ExperienceServiceImpl implements ExperienceService {
                 .orElseThrow(() -> new RuntimeException("Experience not found with id: " + id));
         experienceRepository.delete(experience);
     }
-}
 
+    @Override
+    public List<ExperienceResponseDTO> getExperiencesByProfile(Long candidateProfileId) {
+        return experienceRepository.findByCandidateProfileId(candidateProfileId).stream()
+                .map(experienceMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+}

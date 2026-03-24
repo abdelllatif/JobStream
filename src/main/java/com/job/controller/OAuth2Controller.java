@@ -1,6 +1,6 @@
 package com.job.controller;
 
-import com.job.dto.AuthResponse;
+import com.job.dto.response.AuthResponse;
 import com.job.entity.User;
 import com.job.security.OAuth2Service;
 import lombok.RequiredArgsConstructor;

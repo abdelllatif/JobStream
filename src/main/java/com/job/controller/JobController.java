@@ -40,6 +40,11 @@ public class JobController {
     public void delete(@PathVariable Long id) {
         jobService.delete(id);
     }
+
+    @GetMapping("/company/{companyId}")
+    public List<JobResponseDTO> getJobsByCompany(@PathVariable Long companyId) {
+        return jobService.getJobsByCompanyId(companyId);
+    }
 }
 
 

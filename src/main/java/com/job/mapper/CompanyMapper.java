@@ -6,8 +6,9 @@ import com.job.dto.response.CompanyResponseDTO;
 import com.job.entity.Company;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CompanyMapper {
 
     @Mapping(target = "owner", ignore = true)

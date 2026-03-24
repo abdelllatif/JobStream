@@ -24,7 +24,6 @@ public class DomainServiceImpl implements DomainService {
 
     @Override
     public DomainResponseDTO create(DomainCreateRequestDTO dto) {
-        // Vérifier si le domaine existe déjà
         if (domainRepository.existsByName(dto.getName().toLowerCase())) {
             throw new IllegalArgumentException("Domain with name '" + dto.getName() + "' already exists");
         }
@@ -62,9 +61,7 @@ public class DomainServiceImpl implements DomainService {
     public DomainResponseDTO update(Long id, DomainCreateRequestDTO dto) {
         Domain domain = domainRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Domain not found with id: " + id));
-
-        // Vérifier si le nouveau nom est déjà utilisé par un autre domaine
-        if (!domain.getName().equals(dto.getName().toLowerCase()) && 
+        if (!domain.getName().equals(dto.getName().toLowerCase()) &&
             domainRepository.existsByName(dto.getName().toLowerCase())) {
             throw new IllegalArgumentException("Domain with name '" + dto.getName() + "' already exists");
         }

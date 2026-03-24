@@ -15,6 +15,7 @@ public interface SearchService {
     List<User> searchRecruiters(String keyword, String company, Pageable pageable);
     Page<Job> advancedJobSearch(JobSearchCriteria criteria, Pageable pageable);
     List<String> getSuggestions(String query, String type);
+    com.job.dto.response.GlobalSearchResponseDTO globalSearch(String query);
     void indexJob(Job job);
     void indexJobById(Long jobId);
     void indexUser(User user);

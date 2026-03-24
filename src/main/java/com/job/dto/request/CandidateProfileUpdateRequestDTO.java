@@ -17,7 +17,16 @@ public class CandidateProfileUpdateRequestDTO {
 
     @Size(max = 255)
     private String cvUrl;
+
+    @Size(max = 255)
+    private String jobTitle;
+
+    @Size(max = 255)
+    private String linkedinProfile;
+
+    @Size(max = 255)
+    private String githubProfile;
+
+    @Size(max = 255)
+    private String portfolioUrl;
 }
-
-
-

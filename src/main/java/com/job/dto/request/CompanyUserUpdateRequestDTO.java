@@ -6,7 +6,8 @@ import lombok.Data;
 
 @Data
 public class CompanyUserUpdateRequestDTO {
-    private String JobTitle;
+    private String jobTitle;
     private MembershipStatus status;
+    private CompanyRole companyRole;
 }
 

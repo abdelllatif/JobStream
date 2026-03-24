@@ -26,6 +26,10 @@ public class Connection {
     private LocalDateTime requestedAt;
     private LocalDateTime acceptedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "blocked_by_id")
+    private User blockedBy;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

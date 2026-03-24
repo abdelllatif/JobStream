@@ -9,16 +9,19 @@ import lombok.Data;
 @Data
 @Table(name = "jobs")
 public class Job {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private String location;
     private String contractType;
     private LocalDateTime postedAt;
     private LocalDateTime updatedAt;
     private boolean active;
+    private String externalLink;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
@@ -32,8 +35,6 @@ public class Job {
     private List<Application> applications;
 
     @ManyToMany
-    @JoinTable(name = "job_tags",
-            joinColumns = @JoinColumn(name = "job_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    @JoinTable(name = "job_tags", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> tags;
 }

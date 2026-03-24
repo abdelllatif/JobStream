@@ -1,6 +1,8 @@
 package com.job.service.impl;
 
+import com.job.service.CandidateProfileService;
 import com.job.service.FileUploadService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class FileUploadServiceImpl implements FileUploadService {
+
+    private final CandidateProfileService candidateProfileService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -32,7 +37,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         String fileName = generateUniqueFileName(file.getOriginalFilename());
         Path uploadPath = Paths.get(uploadDir, directory);
-        
+
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -47,7 +52,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Override
     public String uploadCV(MultipartFile file, Long userId) throws IOException {
         validateFileType(file, "pdf");
-        return uploadFile(file, CV_DIR + "/" + userId);
+        String filePath = uploadFile(file, "/" + CV_DIR + "/" + userId);
+        candidateProfileService.updateCvUrl(userId, filePath);
+        return filePath;
     }
 
     @Override
@@ -103,16 +110,30 @@ public class FileUploadServiceImpl implements FileUploadService {
     }
 
     private void validateFileType(MultipartFile file, String expectedType) {
-        String extension = getFileExtension(file.getOriginalFilename());
-        if (!extension.equals(expectedType)) {
-            throw new IllegalArgumentException("File type not supported. Expected: " + expectedType);
+        String originalFilename = file.getOriginalFilename();
+        String contentType = file.getContentType();
+        String extension = getFileExtension(originalFilename);
+
+        log.info("File validation → originalFilename: '{}', contentType: '{}', extractedExtension: '{}'",
+                originalFilename, contentType, extension);
+
+        boolean validExtension = extension.equals(expectedType);
+        boolean validContentType = "pdf".equals(expectedType) && "application/pdf".equals(contentType);
+
+        if (!validExtension && !validContentType) {
+            throw new IllegalArgumentException(
+                    "File type not supported. Expected: " + expectedType
+                            + " | Received filename: '" + originalFilename
+                            + "', contentType: '" + contentType
+                            + "', extension: '" + extension + "'"
+            );
         }
     }
 
     private void validateImageType(MultipartFile file) {
         String extension = getFileExtension(file.getOriginalFilename());
-        if (!extension.equals("jpg") && !extension.equals("jpeg") && 
-            !extension.equals("png") && !extension.equals("gif")) {
+        if (!extension.equals("jpg") && !extension.equals("jpeg") &&
+                !extension.equals("png") && !extension.equals("gif")) {
             throw new IllegalArgumentException("Image type not supported. Supported types: jpg, jpeg, png, gif");
         }
     }
