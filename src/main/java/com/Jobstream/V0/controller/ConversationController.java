@@ -3,8 +3,6 @@ package com.Jobstream.V0.controller;
 import com.Jobstream.V0.dto.request.ConversationRequest;
 import com.Jobstream.V0.dto.response.ConversationResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.ConversationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -16,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -25,24 +24,21 @@ import java.util.List;
 public class ConversationController {
 
     private final ConversationService conversationService;
-    private final UserRepository userRepository;
 
     @GetMapping("/my")
     @Operation(summary = "Get all conversations for the current user")
     public ResponseEntity<List<ConversationResponse>> getMyConversations(Authentication auth) {
-        return ResponseEntity.ok(conversationService.getMyConversations(getCurrentUserId(auth)));
+        return ResponseEntity.ok(conversationService.getMyConversations(currentUserId(auth)));
     }
 
     @PostMapping("/find-or-create")
     @Operation(summary = "Find existing or create new direct conversation")
     public ResponseEntity<ConversationResponse> findOrCreate(
             @Valid @RequestBody ConversationRequest request, Authentication auth) {
-        return ResponseEntity.ok(conversationService.findOrCreateDirectConversation(getCurrentUserId(auth), request));
+        return ResponseEntity.ok(conversationService.findOrCreateDirectConversation(currentUserId(auth), request));
     }
 
-    private java.util.UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

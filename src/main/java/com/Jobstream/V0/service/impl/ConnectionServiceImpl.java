@@ -1,8 +1,10 @@
 package com.Jobstream.V0.service.impl;
 
 import com.Jobstream.V0.dto.request.ConnectionRequest;
+import com.Jobstream.V0.dto.response.ConnectedUserResponse;
 import com.Jobstream.V0.dto.response.ConnectionResponse;
 import com.Jobstream.V0.entity.Connection;
+import com.Jobstream.V0.entity.Profile;
 import com.Jobstream.V0.entity.User;
 import com.Jobstream.V0.enums.ConnectionStatus;
 import com.Jobstream.V0.enums.NotificationType;
@@ -101,15 +103,17 @@ public class ConnectionServiceImpl implements ConnectionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ConnectionResponse> getMyConnections(UUID userId) {
-        return connectionRepository.findAcceptedConnectionsByUser(userId)
-                .stream().map(ConnectionMapper::toResponse).collect(Collectors.toList());
+    public List<ConnectedUserResponse> getMyConnections(UUID userId) {
+        return connectionRepository.findAcceptedConnectionsByUser(userId, ConnectionStatus.ACCEPTED)
+                .stream()
+                .map(c -> toConnectedUser(c, userId))
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ConnectionResponse> getPendingRequests(UUID userId) {
-        return connectionRepository.findPendingReceivedByUser(userId)
+        return connectionRepository.findPendingReceivedByUser(userId, ConnectionStatus.PENDING)
                 .stream().map(ConnectionMapper::toResponse).collect(Collectors.toList());
     }
 
@@ -135,5 +139,35 @@ public class ConnectionServiceImpl implements ConnectionService {
     private User findUser(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    }
+
+    /** Resolves which side of the connection IS NOT the current user and maps their info. */
+    private ConnectedUserResponse toConnectedUser(Connection connection, UUID currentUserId) {
+        User other = connection.getSender().getId().equals(currentUserId)
+                ? connection.getReceiver()
+                : connection.getSender();
+
+        Profile profile = other.getProfile();
+        return ConnectedUserResponse.builder()
+                .connectionId(connection.getId())
+                .userId(other.getId())
+                .firstName(other.getFirstName())
+                .lastName(other.getLastName())
+                .email(other.getEmail())
+                .headline(profile != null ? profile.getHeadline() : null)
+                .photoUrl(profile != null ? profile.getPhotoUrl() : null)
+                .location(profile != null ? profile.getLocation() : null)
+                .connectedAt(connection.getCreatedAt())
+                .build();
+    }
+
+
+
+    @Override
+    public List<ConnectionResponse> getSentPendingRequests(UUID userId) {
+        List<Connection> connections = connectionRepository.findBySenderIdAndStatus(userId, ConnectionStatus.PENDING);
+        return connections.stream()
+                .map(ConnectionMapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

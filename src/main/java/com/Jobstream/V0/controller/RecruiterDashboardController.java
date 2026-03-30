@@ -2,8 +2,6 @@ package com.Jobstream.V0.controller;
 
 import com.Jobstream.V0.dto.response.RecruiterDashboardResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.RecruiterDashboardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -23,18 +21,15 @@ import java.util.UUID;
 public class RecruiterDashboardController {
 
     private final RecruiterDashboardService dashboardService;
-    private final UserRepository userRepository;
 
     @GetMapping("/stats/company/{companyId}")
     @Operation(summary = "Get recruitment statistics for a company")
     public ResponseEntity<RecruiterDashboardResponse> getDashboardStats(
             @PathVariable UUID companyId, Authentication auth) {
-        return ResponseEntity.ok(dashboardService.getDashboard(companyId, getCurrentUserId(auth)));
+        return ResponseEntity.ok(dashboardService.getDashboard(companyId, currentUserId(auth)));
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

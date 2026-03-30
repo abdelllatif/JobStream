@@ -21,6 +21,8 @@ public interface JobService {
     PageResponse<JobResponse> searchJobs(String keyword, String location, JobType jobType,
                                           JobStatus status, Pageable pageable);
 
+    List<JobResponse> getAllJobsExceptPoster(UUID userId);
+
     List<JobResponse> getByCompany(UUID companyId);
 
     void delete(UUID jobId, UUID userId);

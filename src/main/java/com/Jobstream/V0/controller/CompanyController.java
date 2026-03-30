@@ -5,8 +5,6 @@ import com.Jobstream.V0.dto.request.CompanyRequest;
 import com.Jobstream.V0.dto.response.CompanyResponse;
 import com.Jobstream.V0.dto.response.CompanyUserResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.CompanyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -33,21 +31,20 @@ import java.util.UUID;
 public class CompanyController {
 
     private final CompanyService companyService;
-    private final UserRepository userRepository;
 
     @PostMapping
     @Operation(summary = "Register a new company")
     public ResponseEntity<CompanyResponse> createCompany(
             @Valid @RequestBody CompanyRequest request, Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(companyService.create(getCurrentUserId(auth), request));
+                .body(companyService.create(currentUserId(auth), request));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update company details")
     public ResponseEntity<CompanyResponse> updateCompany(
             @PathVariable UUID id, @Valid @RequestBody CompanyRequest request, Authentication auth) {
-        return ResponseEntity.ok(companyService.update(id, getCurrentUserId(auth), request));
+        return ResponseEntity.ok(companyService.update(id, currentUserId(auth), request));
     }
 
     @GetMapping("/{id}")
@@ -66,13 +63,13 @@ public class CompanyController {
     @GetMapping("/my")
     @Operation(summary = "Get companies current user belongs to")
     public ResponseEntity<List<CompanyResponse>> getMyCompanies(Authentication auth) {
-        return ResponseEntity.ok(companyService.getMyCompanies(getCurrentUserId(auth)));
+        return ResponseEntity.ok(companyService.getMyCompanies(currentUserId(auth)));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a company")
     public ResponseEntity<Void> deleteCompany(@PathVariable UUID id, Authentication auth) {
-        companyService.delete(id, getCurrentUserId(auth));
+        companyService.delete(id, currentUserId(auth));
         return ResponseEntity.noContent().build();
     }
 
@@ -80,7 +77,7 @@ public class CompanyController {
     @Operation(summary = "Upload company logo")
     public ResponseEntity<CompanyResponse> uploadLogo(
             @PathVariable UUID id, @RequestParam("file") MultipartFile file, Authentication auth) {
-        return ResponseEntity.ok(companyService.uploadLogo(id, getCurrentUserId(auth), file));
+        return ResponseEntity.ok(companyService.uploadLogo(id, currentUserId(auth), file));
     }
 
     @PostMapping("/{id}/employees")
@@ -88,14 +85,14 @@ public class CompanyController {
     public ResponseEntity<CompanyUserResponse> addEmployee(
             @PathVariable UUID id, @Valid @RequestBody AddCompanyEmployeeRequest request, Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(companyService.addEmployee(id, getCurrentUserId(auth), request));
+                .body(companyService.addEmployee(id, currentUserId(auth), request));
     }
 
     @DeleteMapping("/{companyId}/employees/{memberId}")
     @Operation(summary = "Remove an employee from the company")
     public ResponseEntity<Void> removeEmployee(
             @PathVariable UUID companyId, @PathVariable UUID memberId, Authentication auth) {
-        companyService.removeEmployee(companyId, getCurrentUserId(auth), memberId);
+        companyService.removeEmployee(companyId, currentUserId(auth), memberId);
         return ResponseEntity.noContent().build();
     }
 
@@ -105,9 +102,7 @@ public class CompanyController {
         return ResponseEntity.ok(companyService.getEmployees(id));
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

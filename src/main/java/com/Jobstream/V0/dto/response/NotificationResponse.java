@@ -1,6 +1,7 @@
 package com.Jobstream.V0.dto.response;
 
 import com.Jobstream.V0.enums.NotificationType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class NotificationResponse {
     private NotificationType type;
     private UUID entityId;
     private String content;
+    @JsonProperty("isRead")
     private boolean isRead;
     private LocalDateTime createdAt;
 }

@@ -36,6 +36,9 @@ public class Company {
     @Column(length = 255)
     private String location;
 
+    @Column(length = 255)
+    private String domain;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user_id", nullable = false)
     private User createdBy;

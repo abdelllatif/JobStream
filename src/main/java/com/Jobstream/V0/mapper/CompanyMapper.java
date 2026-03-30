@@ -15,6 +15,7 @@ public class CompanyMapper {
                 .logoUrl(company.getLogoUrl())
                 .website(company.getWebsite())
                 .location(company.getLocation())
+                .domain(company.getDomain())
                 .createdById(company.getCreatedBy().getId())
                 .createdAt(company.getCreatedAt())
                 .updatedAt(company.getUpdatedAt())

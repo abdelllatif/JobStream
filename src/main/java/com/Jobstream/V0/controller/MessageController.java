@@ -4,8 +4,6 @@ import com.Jobstream.V0.dto.request.MessageRequest;
 import com.Jobstream.V0.dto.response.MessageResponse;
 import com.Jobstream.V0.dto.response.PageResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,33 +26,30 @@ import java.util.UUID;
 public class MessageController {
 
     private final MessageService messageService;
-    private final UserRepository userRepository;
 
     @PostMapping
     @Operation(summary = "Send a new message via REST")
     public ResponseEntity<MessageResponse> sendMessage(
             @Valid @RequestBody MessageRequest request, Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(messageService.sendMessage(getCurrentUserId(auth), request));
+                .body(messageService.sendMessage(currentUserId(auth), request));
     }
 
     @GetMapping("/{conversationId}")
     @Operation(summary = "Get messages for a conversation")
     public ResponseEntity<PageResponse<MessageResponse>> getMessages(
             @PathVariable UUID conversationId, Pageable pageable, Authentication auth) {
-        return ResponseEntity.ok(messageService.getMessages(conversationId, getCurrentUserId(auth), pageable));
+        return ResponseEntity.ok(messageService.getMessages(conversationId, currentUserId(auth), pageable));
     }
 
     @PutMapping("/read/{conversationId}")
     @Operation(summary = "Mark all messages in a conversation as read")
     public ResponseEntity<Integer> markConversationAsRead(
             @PathVariable UUID conversationId, Authentication auth) {
-        return ResponseEntity.ok(messageService.markConversationAsRead(conversationId, getCurrentUserId(auth)));
+        return ResponseEntity.ok(messageService.markConversationAsRead(conversationId, currentUserId(auth)));
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

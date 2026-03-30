@@ -23,6 +23,7 @@
     <include file="db/changelog/V16__fix_column_names.sql"/>
     <include file="db/changelog/V17__add_missing_updated_at_columns.sql"/>
     <include file="db/changelog/V18__add_provider_id_to_users.sql"/>
+    <include file="db/changelog/V19__fix_upload_urls_port.sql"/>
     <include file="db/changelog/migrations/V19_add_user_names.xml"/>
 
 </databaseChangeLog>

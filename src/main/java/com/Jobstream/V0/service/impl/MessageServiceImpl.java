@@ -21,6 +21,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -59,9 +60,9 @@ public class MessageServiceImpl implements MessageService {
 
         MessageResponse response = MessageMapper.toResponse(savedMessage);
 
-        // Real-time broadcast
+        // Real-time broadcast to all participants of the conversation
         messagingTemplate.convertAndSend(
-                "/queue/messages/" + conversation.getId(), response);
+                "/topic/conversations/" + conversation.getId(), response);
 
         // Notify other participants
         conversation.getParticipants().stream()
@@ -96,7 +97,11 @@ public class MessageServiceImpl implements MessageService {
         if (!participantRepository.existsByConversationIdAndUserId(conversationId, userId)) {
             throw new UnauthorizedException("Not a participant");
         }
-        return messageRepository.markAllAsRead(conversationId, userId);
+        int updated = messageRepository.markAllAsRead(conversationId, userId);
+        // Broadcast read-receipt so senders know their messages were read
+        messagingTemplate.convertAndSend("/topic/conversations/" + conversationId + "/read",
+                Map.of("conversationId", conversationId.toString(), "readByUserId", userId.toString()));
+        return updated;
     }
 
     private String truncate(String s, int max) {

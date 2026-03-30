@@ -61,6 +61,13 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<!-- H2 Database for development -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
 		<!-- JWT -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -158,6 +165,14 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>4.24.0</version>
+				<configuration>
+					<propertyFile>src/main/resources/liquibase.properties</propertyFile>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -1,5 +1,6 @@
 package com.Jobstream.V0.exception;
 
+import com.Jobstream.V0.repository.ApplicationRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -13,4 +14,6 @@ public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String resource, String field, Object value) {
         super(String.format("%s not found with %s: '%s'", resource, field, value));
     }
+
+
 }

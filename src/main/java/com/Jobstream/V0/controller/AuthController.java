@@ -39,4 +39,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
+
+    @GetMapping("/google")
+    @Operation(summary = "Initiate Google OAuth2 login redirect")
+    public void loginViaGoogle(jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        response.sendRedirect("/oauth2/authorization/google");
+    }
 }

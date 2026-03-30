@@ -3,8 +3,6 @@ package com.Jobstream.V0.controller;
 import com.Jobstream.V0.dto.request.ExperienceRequest;
 import com.Jobstream.V0.dto.response.ExperienceResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.ExperienceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,7 +25,6 @@ import java.util.UUID;
 public class ExperienceController {
 
     private final ExperienceService experienceService;
-    private final UserRepository userRepository;
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get experience by user ID")
@@ -38,7 +35,7 @@ public class ExperienceController {
     @GetMapping("/me")
     @Operation(summary = "Get current user experience")
     public ResponseEntity<List<ExperienceResponse>> getMyExperience(Authentication auth) {
-        return ResponseEntity.ok(experienceService.getByUserId(getCurrentUserId(auth)));
+        return ResponseEntity.ok(experienceService.getByUserId(currentUserId(auth)));
     }
 
     @PostMapping
@@ -46,26 +43,24 @@ public class ExperienceController {
     public ResponseEntity<ExperienceResponse> addExperience(
             @Valid @RequestBody ExperienceRequest request, Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(experienceService.create(getCurrentUserId(auth), request));
+                .body(experienceService.create(currentUserId(auth), request));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an experience entry")
     public ResponseEntity<ExperienceResponse> updateExperience(
             @PathVariable UUID id, @Valid @RequestBody ExperienceRequest request, Authentication auth) {
-        return ResponseEntity.ok(experienceService.update(id, getCurrentUserId(auth), request));
+        return ResponseEntity.ok(experienceService.update(id, currentUserId(auth), request));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an experience entry")
     public ResponseEntity<Void> deleteExperience(@PathVariable UUID id, Authentication auth) {
-        experienceService.delete(id, getCurrentUserId(auth));
+        experienceService.delete(id, currentUserId(auth));
         return ResponseEntity.noContent().build();
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

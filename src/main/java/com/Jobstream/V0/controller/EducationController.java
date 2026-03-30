@@ -3,8 +3,6 @@ package com.Jobstream.V0.controller;
 import com.Jobstream.V0.dto.request.EducationRequest;
 import com.Jobstream.V0.dto.response.EducationResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.EducationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,7 +25,6 @@ import java.util.UUID;
 public class EducationController {
 
     private final EducationService educationService;
-    private final UserRepository userRepository;
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Get education by user ID")
@@ -38,7 +35,7 @@ public class EducationController {
     @GetMapping("/me")
     @Operation(summary = "Get current user education")
     public ResponseEntity<List<EducationResponse>> getMyEducation(Authentication auth) {
-        return ResponseEntity.ok(educationService.getByUserId(getCurrentUserId(auth)));
+        return ResponseEntity.ok(educationService.getByUserId(currentUserId(auth)));
     }
 
     @PostMapping
@@ -46,26 +43,24 @@ public class EducationController {
     public ResponseEntity<EducationResponse> addEducation(
             @Valid @RequestBody EducationRequest request, Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(educationService.create(getCurrentUserId(auth), request));
+                .body(educationService.create(currentUserId(auth), request));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update an education entry")
     public ResponseEntity<EducationResponse> updateEducation(
             @PathVariable UUID id, @Valid @RequestBody EducationRequest request, Authentication auth) {
-        return ResponseEntity.ok(educationService.update(id, getCurrentUserId(auth), request));
+        return ResponseEntity.ok(educationService.update(id, currentUserId(auth), request));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete an education entry")
     public ResponseEntity<Void> deleteEducation(@PathVariable UUID id, Authentication auth) {
-        educationService.delete(id, getCurrentUserId(auth));
+        educationService.delete(id, currentUserId(auth));
         return ResponseEntity.noContent().build();
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

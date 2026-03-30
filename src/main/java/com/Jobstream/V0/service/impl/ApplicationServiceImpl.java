@@ -23,6 +23,7 @@ import com.Jobstream.V0.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final UserRepository userRepository;
     private final CompanyUserRepository companyUserRepository;
     private final NotificationService notificationService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional
@@ -108,7 +110,12 @@ public class ApplicationServiceImpl implements ApplicationService {
                 " was " + request.getStatus().name().toLowerCase();
         notificationService.createNotification(application.getUser(), type, application.getId(), msg);
 
-        return ApplicationMapper.toResponse(application);
+        ApplicationResponse updatedResponse = ApplicationMapper.toResponse(application);
+        // Broadcast real-time status change to the applicant
+        messagingTemplate.convertAndSend(
+                "/topic/applications/" + application.getUser().getId(), updatedResponse);
+
+        return updatedResponse;
     }
 
     @Override

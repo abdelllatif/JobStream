@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -21,4 +22,5 @@ public class UserResponse {
     private boolean enabled;
     private LocalDateTime createdAt;
     private ProfileResponse profile;
+    private List<ConnectionResponse> connections;
 }

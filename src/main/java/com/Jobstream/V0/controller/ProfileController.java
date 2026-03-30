@@ -3,8 +3,6 @@ package com.Jobstream.V0.controller;
 import com.Jobstream.V0.dto.request.ProfileRequest;
 import com.Jobstream.V0.dto.response.ProfileResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.ProfileService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,7 +25,6 @@ import java.util.UUID;
 public class ProfileController {
 
     private final ProfileService profileService;
-    private final UserRepository userRepository;
 
     @GetMapping("/{userId}")
     @Operation(summary = "Get profile by user ID")
@@ -38,37 +35,31 @@ public class ProfileController {
     @GetMapping("/me")
     @Operation(summary = "Get current user profile")
     public ResponseEntity<ProfileResponse> getMyProfile(Authentication auth) {
-        UUID userId = getCurrentUserId(auth);
-        return ResponseEntity.ok(profileService.getByUserId(userId));
+        return ResponseEntity.ok(profileService.getByUserId(currentUserId(auth)));
     }
 
     @PutMapping
     @Operation(summary = "Create or update current user profile")
     public ResponseEntity<ProfileResponse> updateProfile(
             @Valid @RequestBody ProfileRequest request, Authentication auth) {
-        UUID userId = getCurrentUserId(auth);
-        return ResponseEntity.ok(profileService.createOrUpdate(userId, request));
+        return ResponseEntity.ok(profileService.createOrUpdate(currentUserId(auth), request));
     }
 
     @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload profile photo")
     public ResponseEntity<ProfileResponse> uploadPhoto(
             @RequestParam("file") MultipartFile file, Authentication auth) {
-        UUID userId = getCurrentUserId(auth);
-        return ResponseEntity.ok(profileService.uploadPhoto(userId, file));
+        return ResponseEntity.ok(profileService.uploadPhoto(currentUserId(auth), file));
     }
 
     @PostMapping(value = "/cv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload CV document")
     public ResponseEntity<ProfileResponse> uploadCv(
             @RequestParam("file") MultipartFile file, Authentication auth) {
-        UUID userId = getCurrentUserId(auth);
-        return ResponseEntity.ok(profileService.uploadCv(userId, file));
+        return ResponseEntity.ok(profileService.uploadCv(currentUserId(auth), file));
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

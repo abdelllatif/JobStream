@@ -1,10 +1,9 @@
 package com.Jobstream.V0.controller;
 
 import com.Jobstream.V0.dto.request.ConnectionRequest;
+import com.Jobstream.V0.dto.response.ConnectedUserResponse;
 import com.Jobstream.V0.dto.response.ConnectionResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.ConnectionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,61 +26,64 @@ import java.util.UUID;
 public class ConnectionController {
 
     private final ConnectionService connectionService;
-    private final UserRepository userRepository;
 
     @PostMapping("/request")
     @Operation(summary = "Send a connection request")
     public ResponseEntity<ConnectionResponse> sendRequest(
             @Valid @RequestBody ConnectionRequest request, Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(connectionService.sendRequest(getCurrentUserId(auth), request));
+                .body(connectionService.sendRequest(currentUserId(auth), request));
     }
 
     @PutMapping("/{id}/accept")
     @Operation(summary = "Accept a connection request")
     public ResponseEntity<ConnectionResponse> acceptRequest(
             @PathVariable UUID id, Authentication auth) {
-        return ResponseEntity.ok(connectionService.accept(id, getCurrentUserId(auth)));
+        return ResponseEntity.ok(connectionService.accept(id, currentUserId(auth)));
     }
 
     @PutMapping("/{id}/reject")
     @Operation(summary = "Reject a connection request")
     public ResponseEntity<ConnectionResponse> rejectRequest(
             @PathVariable UUID id, Authentication auth) {
-        return ResponseEntity.ok(connectionService.reject(id, getCurrentUserId(auth)));
+        return ResponseEntity.ok(connectionService.reject(id, currentUserId(auth)));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Remove an existing connection or pending request")
     public ResponseEntity<Void> removeConnection(
             @PathVariable UUID id, Authentication auth) {
-        connectionService.remove(id, getCurrentUserId(auth));
+        connectionService.remove(id, currentUserId(auth));
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/my")
-    @Operation(summary = "Get all accepted connections of current user")
-    public ResponseEntity<List<ConnectionResponse>> getMyConnections(Authentication auth) {
-        return ResponseEntity.ok(connectionService.getMyConnections(getCurrentUserId(auth)));
+    @Operation(summary = "Get all accepted connections of current user — returns the OTHER person's info")
+    public ResponseEntity<List<ConnectedUserResponse>> getMyConnections(Authentication auth) {
+        return ResponseEntity.ok(connectionService.getMyConnections(currentUserId(auth)));
     }
 
     @GetMapping("/pending")
     @Operation(summary = "Get pending received connection requests")
     public ResponseEntity<List<ConnectionResponse>> getPendingRequests(Authentication auth) {
-        return ResponseEntity.ok(connectionService.getPendingRequests(getCurrentUserId(auth)));
+        return ResponseEntity.ok(connectionService.getPendingRequests(currentUserId(auth)));
+    }
+
+    @GetMapping("/sent-pending")
+    @Operation(summary = "Get pending sent connection requests")
+    public ResponseEntity<List<ConnectionResponse>> getSentPendingRequests(Authentication auth) {
+        return ResponseEntity.ok(connectionService.getSentPendingRequests(currentUserId(auth)));
     }
 
     @GetMapping("/status/{userId}")
     @Operation(summary = "Get connection status with another user")
     public ResponseEntity<ConnectionResponse> getConnectionStatus(
             @PathVariable UUID userId, Authentication auth) {
-        ConnectionResponse res = connectionService.getConnectionStatus(getCurrentUserId(auth), userId);
+        ConnectionResponse res = connectionService.getConnectionStatus(currentUserId(auth), userId);
         return res != null ? ResponseEntity.ok(res) : ResponseEntity.notFound().build();
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

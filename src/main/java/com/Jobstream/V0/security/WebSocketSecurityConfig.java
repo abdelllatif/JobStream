@@ -7,6 +7,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.MessageDeliveryException;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -53,6 +54,14 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
                         } catch (Exception e) {
                             log.warn("WebSocket JWT auth failed: {}", e.getMessage());
                         }
+                    }
+
+                    // Reject the CONNECT if authentication failed.
+                    // Without a Principal, convertAndSendToUser() cannot route messages
+                    // to this session — all real-time pushes would be silently dropped.
+                    if (accessor.getUser() == null) {
+                        log.warn("WebSocket CONNECT rejected: no valid JWT provided");
+                        throw new MessageDeliveryException("Authentication required: provide a valid Bearer token in the STOMP CONNECT frame");
                     }
                 }
                 return message;

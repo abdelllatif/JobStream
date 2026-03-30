@@ -1,5 +1,6 @@
 package com.Jobstream.V0.service.impl;
 
+import com.Jobstream.V0.dto.response.NotificationCountResponse;
 import com.Jobstream.V0.dto.response.NotificationResponse;
 import com.Jobstream.V0.dto.response.PageResponse;
 import com.Jobstream.V0.entity.Notification;
@@ -9,6 +10,7 @@ import com.Jobstream.V0.exception.ResourceNotFoundException;
 import com.Jobstream.V0.exception.UnauthorizedException;
 import com.Jobstream.V0.mapper.NotificationMapper;
 import com.Jobstream.V0.repository.NotificationRepository;
+import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final UserRepository userRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Override
@@ -40,9 +43,12 @@ public class NotificationServiceImpl implements NotificationService {
         
         notification = notificationRepository.save(notification);
 
-        // Real-time broadcast
+        // Real-time push: new notification object + updated split unread counts
         NotificationResponse response = NotificationMapper.toResponse(notification);
-        messagingTemplate.convertAndSend("/topic/notifications/" + recipient.getId(), response);
+        messagingTemplate.convertAndSendToUser(recipient.getEmail(), "/queue/notifications", response);
+        messagingTemplate.convertAndSendToUser(
+                recipient.getEmail(), "/queue/notifications/count",
+                buildCounts(recipient.getId()));
 
         return notification;
     }
@@ -69,18 +75,64 @@ public class NotificationServiceImpl implements NotificationService {
         }
         
         notification.setRead(true);
-        return NotificationMapper.toResponse(notificationRepository.save(notification));
+        NotificationResponse response = NotificationMapper.toResponse(notificationRepository.save(notification));
+        // Push updated split unread counts
+        messagingTemplate.convertAndSendToUser(
+                notification.getUser().getEmail(), "/queue/notifications/count",
+                buildCounts(userId));
+        return response;
     }
 
     @Override
     @Transactional
     public int markAllAsRead(UUID userId) {
-        return notificationRepository.markAllAsRead(userId);
+        // Mark only NON-MESSAGE notifications as read (bell button action).
+        // MESSAGE notifications are only cleared by markMessageNotificationsAsRead.
+        int updated = notificationRepository.markAllAsReadExcludingType(userId, NotificationType.MESSAGE);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        // notificationCount is now 0; messageCount stays the same
+        long msgCount = notificationRepository.countByUserIdAndIsReadFalseAndType(userId, NotificationType.MESSAGE);
+        messagingTemplate.convertAndSendToUser(
+                user.getEmail(), "/queue/notifications/count",
+                new NotificationCountResponse(0L, msgCount));
+        return updated;
+    }
+
+    @Override
+    @Transactional
+    public int markMessageNotificationsAsRead(UUID userId) {
+        // Mark only MESSAGE-type notifications as read (messages panel action).
+        int updated = notificationRepository.markAllAsReadByType(userId, NotificationType.MESSAGE);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+        // messageCount is now 0; notificationCount stays the same
+        long notifCount = notificationRepository.countByUserIdAndIsReadFalseAndTypeNot(userId, NotificationType.MESSAGE);
+        messagingTemplate.convertAndSendToUser(
+                user.getEmail(), "/queue/notifications/count",
+                new NotificationCountResponse(notifCount, 0L));
+        return updated;
     }
 
     @Override
     @Transactional(readOnly = true)
     public long countUnread(UUID userId) {
         return notificationRepository.countByUserIdAndIsReadFalse(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public NotificationCountResponse getUnreadCounts(UUID userId) {
+        return buildCounts(userId);
+    }
+
+    // ── helpers ────────────────────────────────────────────────────────────────
+
+    private NotificationCountResponse buildCounts(UUID userId) {
+        long notifCount = notificationRepository
+                .countByUserIdAndIsReadFalseAndTypeNot(userId, NotificationType.MESSAGE);
+        long msgCount = notificationRepository
+                .countByUserIdAndIsReadFalseAndType(userId, NotificationType.MESSAGE);
+        return new NotificationCountResponse(notifCount, msgCount);
     }
 }

@@ -18,7 +18,23 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmail(String email);
 
-    @Query("SELECT u FROM User u WHERE LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%')) " +
-           "OR LOWER(u.profile.headline) LIKE LOWER(CONCAT('%', :query, '%'))")
-    Page<User> searchUsers(@Param("query") String query, Pageable pageable);
+    @Query("SELECT u FROM User u WHERE " +
+           "(LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(u.profile.headline) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :query, '%')) " +
+           "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+           "AND u.id != :currentUserId " +
+           "AND u.role != com.Jobstream.V0.enums.Role.ADMIN " +
+           "AND u.id NOT IN (SELECT ub.blocked.id FROM UserBlock ub WHERE ub.blocker.id = :currentUserId) " +
+           "AND u.id NOT IN (SELECT ub.blocker.id FROM UserBlock ub WHERE ub.blocked.id = :currentUserId)")
+    Page<User> searchUsers(@Param("query") String query, @Param("currentUserId") UUID currentUserId, Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.id != :currentUserId " +
+            "AND u.role != com.Jobstream.V0.enums.Role.ADMIN " +
+            "AND u.id NOT IN (SELECT ub.blocked.id FROM UserBlock ub WHERE ub.blocker.id = :currentUserId) " +
+            "AND u.id NOT IN (SELECT ub.blocker.id FROM UserBlock ub WHERE ub.blocked.id = :currentUserId)")
+    Page<User> findNetworkUsers(@Param("currentUserId") UUID currentUserId, Pageable pageable);
+
+    @Query("SELECT u FROM User u WHERE u.role != com.Jobstream.V0.enums.Role.ADMIN ORDER BY u.createdAt DESC")
+    Page<User> findAllExcludingAdmins(Pageable pageable);
 }

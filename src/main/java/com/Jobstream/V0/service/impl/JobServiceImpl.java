@@ -90,6 +90,15 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<JobResponse> getAllJobsExceptPoster(UUID userId) {
+        return jobRepository.findByCreatedByIdNot(userId)
+                .stream()
+                .map(JobMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<JobResponse> getByCompany(UUID companyId) {
         return jobRepository.findByCompanyIdAndStatus(companyId, JobStatus.OPEN)
                 .stream().map(JobMapper::toResponse).collect(Collectors.toList());

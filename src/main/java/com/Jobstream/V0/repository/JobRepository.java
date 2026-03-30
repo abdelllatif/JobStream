@@ -22,6 +22,8 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
 
     List<Job> findByCreatedById(UUID userId);
 
+       List<Job> findByCreatedByIdNot(UUID userId);
+
     List<Job> findByCompanyId(UUID companyId);
 
     long countByCompanyId(UUID companyId);

@@ -1,10 +1,9 @@
 package com.Jobstream.V0.controller;
 
+import com.Jobstream.V0.dto.response.NotificationCountResponse;
 import com.Jobstream.V0.dto.response.NotificationResponse;
 import com.Jobstream.V0.dto.response.PageResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -25,36 +24,45 @@ import java.util.UUID;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final UserRepository userRepository;
 
     @GetMapping("/my")
     @Operation(summary = "Get my notifications")
     public ResponseEntity<PageResponse<NotificationResponse>> getMyNotifications(
             Authentication auth, Pageable pageable) {
-        return ResponseEntity.ok(notificationService.getMyNotifications(getCurrentUserId(auth), pageable));
+        return ResponseEntity.ok(notificationService.getMyNotifications(currentUserId(auth), pageable));
     }
 
     @GetMapping("/unread-count")
-    @Operation(summary = "Get unread notification count")
+    @Operation(summary = "Get total unread notification count")
     public ResponseEntity<Long> getUnreadCount(Authentication auth) {
-        return ResponseEntity.ok(notificationService.countUnread(getCurrentUserId(auth)));
+        return ResponseEntity.ok(notificationService.countUnread(currentUserId(auth)));
+    }
+
+    @GetMapping("/unread-counts")
+    @Operation(summary = "Get split unread counts: notificationCount (non-message) and messageCount")
+    public ResponseEntity<NotificationCountResponse> getUnreadCounts(Authentication auth) {
+        return ResponseEntity.ok(notificationService.getUnreadCounts(currentUserId(auth)));
     }
 
     @PutMapping("/{id}/read")
     @Operation(summary = "Mark a single notification as read")
     public ResponseEntity<NotificationResponse> markAsRead(@PathVariable UUID id, Authentication auth) {
-        return ResponseEntity.ok(notificationService.markAsRead(id, getCurrentUserId(auth)));
+        return ResponseEntity.ok(notificationService.markAsRead(id, currentUserId(auth)));
     }
 
     @PutMapping("/read-all")
     @Operation(summary = "Mark all notifications as read")
     public ResponseEntity<Integer> markAllAsRead(Authentication auth) {
-        return ResponseEntity.ok(notificationService.markAllAsRead(getCurrentUserId(auth)));
+        return ResponseEntity.ok(notificationService.markAllAsRead(currentUserId(auth)));
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    @PutMapping("/read-messages")
+    @Operation(summary = "Mark all MESSAGE-type notifications as read (call when opening Messages panel)")
+    public ResponseEntity<Integer> markMessageNotificationsAsRead(Authentication auth) {
+        return ResponseEntity.ok(notificationService.markMessageNotificationsAsRead(currentUserId(auth)));
+    }
+
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

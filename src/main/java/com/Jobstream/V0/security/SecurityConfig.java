@@ -1,10 +1,12 @@
 package com.Jobstream.V0.security;
 
 import com.Jobstream.V0.security.oauth2.GoogleOAuth2SuccessHandler;
+import com.Jobstream.V0.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,6 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -33,9 +36,12 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService userDetailsService;
     private final GoogleOAuth2SuccessHandler oAuth2SuccessHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository cookieAuthRequestRepository;
 
     private static final String[] PUBLIC_ENDPOINTS = {
         "/api/auth/**",
+        "/oauth2/**",
+        "/login/oauth2/**",
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-ui.html",
@@ -57,10 +63,16 @@ public class SecurityConfig {
                     .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
+                    .authorizationEndpoint(endpoint ->
+                            endpoint.authorizationRequestRepository(cookieAuthRequestRepository))
                     .successHandler(oAuth2SuccessHandler)
             )
             .authenticationProvider(authenticationProvider())
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .exceptionHandling(exc -> exc
+                    // Return 401 when the request has a missing/expired/invalid JWT token
+                    .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+            );
 
         return http.build();
     }

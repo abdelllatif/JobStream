@@ -5,8 +5,6 @@ import com.Jobstream.V0.dto.request.UpdateApplicationStatusRequest;
 import com.Jobstream.V0.dto.response.ApplicationResponse;
 import com.Jobstream.V0.dto.response.PageResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.ApplicationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -30,49 +28,46 @@ import java.util.UUID;
 public class ApplicationController {
 
     private final ApplicationService applicationService;
-    private final UserRepository userRepository;
 
     @PostMapping
     @Operation(summary = "Apply to a job")
     public ResponseEntity<ApplicationResponse> apply(
             @Valid @RequestBody ApplicationRequest request, Authentication auth) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(applicationService.apply(getCurrentUserId(auth), request));
+                .body(applicationService.apply(currentUserId(auth), request));
     }
 
     @GetMapping("/my")
     @Operation(summary = "Get applications submitted by current user")
     public ResponseEntity<PageResponse<ApplicationResponse>> getMyApplications(
             Authentication auth, Pageable pageable) {
-        return ResponseEntity.ok(applicationService.getMyApplications(getCurrentUserId(auth), pageable));
+        return ResponseEntity.ok(applicationService.getMyApplications(currentUserId(auth), pageable));
     }
 
     @GetMapping("/job/{jobId}")
-    @Operation(summary = "Get all applications for a specific job (Recruiters only)")
+    @Operation(summary = "Get all applications for a specific job (company members only)")
     public ResponseEntity<List<ApplicationResponse>> getJobApplications(
             @PathVariable UUID jobId, Authentication auth) {
-        return ResponseEntity.ok(applicationService.getApplicationsByJob(jobId, getCurrentUserId(auth)));
+        return ResponseEntity.ok(applicationService.getApplicationsByJob(jobId, currentUserId(auth)));
     }
 
     @PutMapping("/{id}/status")
-    @Operation(summary = "Update application status (Recruiters only)")
+    @Operation(summary = "Update application status (company members only)")
     public ResponseEntity<ApplicationResponse> updateStatus(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateApplicationStatusRequest request,
             Authentication auth) {
-        return ResponseEntity.ok(applicationService.updateStatus(id, getCurrentUserId(auth), request));
+        return ResponseEntity.ok(applicationService.updateStatus(id, currentUserId(auth), request));
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Withdraw an application")
     public ResponseEntity<Void> withdrawApplication(@PathVariable UUID id, Authentication auth) {
-        applicationService.withdraw(id, getCurrentUserId(auth));
+        applicationService.withdraw(id, currentUserId(auth));
         return ResponseEntity.noContent().build();
     }
 
-    private UUID getCurrentUserId(Authentication authentication) {
-        User user = userRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        return user.getId();
+    private static UUID currentUserId(Authentication auth) {
+        return ((User) auth.getPrincipal()).getId();
     }
 }

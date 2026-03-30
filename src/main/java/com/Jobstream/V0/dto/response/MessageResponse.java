@@ -1,5 +1,6 @@
 package com.Jobstream.V0.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,6 +19,7 @@ public class MessageResponse {
     private String content;
     private UUID jobId;
     private String jobTitle;
+    @JsonProperty("isRead")
     private boolean isRead;
     private LocalDateTime createdAt;
 }

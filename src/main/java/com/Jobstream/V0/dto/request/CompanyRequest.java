@@ -12,4 +12,5 @@ public class CompanyRequest {
     private String description;
     private String website;
     private String location;
+    private String domain;
 }

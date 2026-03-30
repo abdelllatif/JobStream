@@ -47,6 +47,7 @@ public class CompanyServiceImpl implements CompanyService {
                 .description(request.getDescription())
                 .website(request.getWebsite())
                 .location(request.getLocation())
+                .domain(request.getDomain())
                 .createdBy(user)
                 .build();
         company = companyRepository.save(company);
@@ -62,12 +63,13 @@ public class CompanyServiceImpl implements CompanyService {
     @Transactional
     public CompanyResponse update(UUID companyId, UUID userId, CompanyRequest request) {
         Company company = findCompany(companyId);
-        assertManagerOrOwner(companyId, userId);
+        assertOwner(companyId, userId);
 
         company.setName(request.getName());
         company.setDescription(request.getDescription());
         company.setWebsite(request.getWebsite());
         company.setLocation(request.getLocation());
+        company.setDomain(request.getDomain());
         return CompanyMapper.toResponse(companyRepository.save(company));
     }
 
@@ -104,7 +106,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Transactional
     public CompanyResponse uploadLogo(UUID companyId, UUID userId, MultipartFile file) {
         Company company = findCompany(companyId);
-        assertManagerOrOwner(companyId, userId);
+        assertOwner(companyId, userId);
         String logoUrl = fileStorageService.storeFile(file, "logos");
         company.setLogoUrl(logoUrl);
         return CompanyMapper.toResponse(companyRepository.save(company));
@@ -113,7 +115,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional
     public CompanyUserResponse addEmployee(UUID companyId, UUID managerId, AddCompanyEmployeeRequest request) {
-        assertManagerOrOwner(companyId, managerId);
+        assertOwner(companyId, managerId);
         Company company = findCompany(companyId);
         User user = findUser(request.getUserId());
 
@@ -122,7 +124,7 @@ public class CompanyServiceImpl implements CompanyService {
         }
 
         CompanyUser cu = CompanyUser.builder()
-                .company(company).user(user).role(request.getRole())
+                .company(company).user(user).role(CompanyRole.OWNER)
                 .startDate(request.getStartDate()).isCurrent(true).build();
         return CompanyMapper.toEmployeeResponse(companyUserRepository.save(cu));
     }
@@ -130,12 +132,12 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @Transactional
     public void removeEmployee(UUID companyId, UUID managerId, UUID memberId) {
-        assertManagerOrOwner(companyId, managerId);
+        assertOwner(companyId, managerId);
+        if (managerId.equals(memberId)) {
+            throw new BadRequestException("Cannot remove yourself as owner");
+        }
         CompanyUser cu = companyUserRepository.findByCompanyIdAndUserId(companyId, memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
-        if (cu.getRole() == CompanyRole.OWNER) {
-            throw new BadRequestException("Cannot remove the owner");
-        }
         companyUserRepository.delete(cu);
     }
 
@@ -146,12 +148,9 @@ public class CompanyServiceImpl implements CompanyService {
                 .stream().map(CompanyMapper::toEmployeeResponse).collect(Collectors.toList());
     }
 
-    private void assertManagerOrOwner(UUID companyId, UUID userId) {
-        CompanyUser cu = companyUserRepository.findByCompanyIdAndUserId(companyId, userId)
-                .orElseThrow(() -> new UnauthorizedException("Not a member of this company"));
-        if (cu.getRole() == CompanyRole.EMPLOYEE) {
-            throw new UnauthorizedException("Insufficient company role");
-        }
+    private void assertOwner(UUID companyId, UUID userId) {
+        companyUserRepository.findByCompanyIdAndUserId(companyId, userId)
+                .orElseThrow(() -> new UnauthorizedException("Only company owners can perform this action"));
     }
 
     private Company findCompany(UUID id) {

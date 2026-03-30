@@ -32,7 +32,7 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: email, profile
+            scope: openid, email, profile
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           google:
@@ -58,11 +58,11 @@ application:
     expiration-ms: ${JWT_EXPIRATION_MS:86400000}
     refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
   oauth2:
-    redirect-url: ${OAUTH2_REDIRECT_URL:http://localhost:3000/oauth2/callback}
-  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+    redirect-url: ${OAUTH2_REDIRECT_URL:http://localhost:4200/oauth2/callback}
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
   file:
     storage-path: ${FILE_STORAGE_PATH:./uploads}
-    base-url: ${FILE_BASE_URL:http://localhost:8080/uploads}
+    base-url: ${FILE_BASE_URL:http://localhost:8081/uploads}
 
 # ─── Logging ─────────────────────────────────────────────────────────────────
 logging:

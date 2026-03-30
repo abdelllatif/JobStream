@@ -81,7 +81,6 @@ public class ConversationServiceImpl implements ConversationService {
                 .map(p -> UserMapper.toResponse(p.getUser()))
                 .collect(Collectors.toList());
 
-        List<MessageMapper> latestMessages = null;
         MessageResponse lastMessage = messageRepository
                 .findLatestMessage(conversation.getId(), PageRequest.of(0, 1))
                 .stream().map(MessageMapper::toResponse).findFirst().orElse(null);

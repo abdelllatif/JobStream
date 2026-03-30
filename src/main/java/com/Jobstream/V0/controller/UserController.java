@@ -1,6 +1,9 @@
 package com.Jobstream.V0.controller;
 
+import com.Jobstream.V0.dto.request.ChangePasswordRequest;
+import com.Jobstream.V0.dto.request.SetPasswordRequest;
 import com.Jobstream.V0.dto.request.UpdateRoleRequest;
+import com.Jobstream.V0.entity.User;
 import com.Jobstream.V0.dto.response.UserResponse;
 import com.Jobstream.V0.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,16 +42,61 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search users by email or headline")
+    @Operation(summary = "Search users by email or headline (excludes blocked users)")
     public ResponseEntity<Page<UserResponse>> searchUsers(
-            @RequestParam String query, Pageable pageable) {
-        return ResponseEntity.ok(userService.searchUsers(query, pageable));
+            @RequestParam String query, Pageable pageable, Authentication authentication) {
+        return ResponseEntity.ok(userService.searchUsers(query, authentication.getName(), pageable));
+    }
+
+    @GetMapping("/network")
+    @Operation(summary = "Get suggested users for network (excluding admins and blocked users)")
+    public ResponseEntity<Page<UserResponse>> getNetworkUsers(Authentication authentication, Pageable pageable) {
+        return ResponseEntity.ok(userService.getNetworkUsers(authentication.getName(), pageable));
+    }
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get all users excluding admins (Admin only)")
+    public ResponseEntity<Page<UserResponse>> getAllUsers(Pageable pageable) {
+        return ResponseEntity.ok(userService.getAllUsersExcludingAdmins(pageable));
+    }
+
+    @GetMapping("/me/has-password")
+    @Operation(summary = "Check if current user has a password set")
+    public ResponseEntity<Boolean> hasPassword(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(userService.hasPassword(user.getId()));
+    }
+
+    @PostMapping("/me/set-password")
+    @Operation(summary = "Set password for Google-authenticated users (no password yet)")
+    public ResponseEntity<Void> setPassword(
+            @Valid @RequestBody SetPasswordRequest request, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        userService.setPassword(user.getId(), request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/me/change-password")
+    @Operation(summary = "Change current user password")
+    public ResponseEntity<Void> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request, Authentication authentication) {
+        userService.changePassword(authentication.getName(), request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Activate a suspended user account (Admin only)")
+    public ResponseEntity<Void> activateUser(@PathVariable UUID id) {
+        userService.activateUser(id);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a user")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id, Authentication authentication) {
-        userService.deleteUser(id, authentication.getName());
+    @Operation(summary = "Disable a user account (sets enabled=false)")
+    public ResponseEntity<Void> disableUser(@PathVariable UUID id, Authentication authentication) {
+        userService.disableUser(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 

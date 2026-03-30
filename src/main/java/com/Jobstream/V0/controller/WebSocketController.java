@@ -3,8 +3,6 @@ package com.Jobstream.V0.controller;
 import com.Jobstream.V0.dto.request.MessageRequest;
 import com.Jobstream.V0.dto.response.MessageResponse;
 import com.Jobstream.V0.entity.User;
-import com.Jobstream.V0.exception.ResourceNotFoundException;
-import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +19,6 @@ import java.util.UUID;
 public class WebSocketController {
 
     private final MessageService messageService;
-    private final UserRepository userRepository;
 
     /**
      * STOMP Message Mapping for sending a real-time message.
@@ -34,13 +31,9 @@ public class WebSocketController {
                 log.error("Unauthenticated user tried to send a message via WS");
                 return;
             }
-
-            User user = userRepository.findByEmail(authentication.getName())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found: " + authentication.getName()));
-
-            // Service internal handles the saving and the broadcast to /queue/messages/{id}
+            // User entity is already loaded by WebSocketSecurityConfig — no DB hit needed
+            User user = (User) authentication.getPrincipal();
             MessageResponse response = messageService.sendMessage(user.getId(), request);
-            
             log.info("WebSocket message processed and broadcasted for conversation {}", request.getConversationId());
         } catch (Exception e) {
             log.error("Error processing websocket message: {}", e.getMessage());

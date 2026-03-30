@@ -17,6 +17,7 @@ public class CompanyResponse {
     private String logoUrl;
     private String website;
     private String location;
+    private String domain;
     private UUID createdById;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
