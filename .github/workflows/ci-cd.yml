@@ -46,14 +46,6 @@ jobs:
       # run: ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project -Dsonar.login=${{ secrets.SONAR_TOKEN }}
       run: echo "Static Analysis phase executed."
 
-    - name: Database Migrations (Liquibase Validate)
-      # Validates liquibase changelogs to ensure they are valid.
-      run: >
-        ./mvnw liquibase:updateSQL
-        -Dliquibase.url=jdbc:postgresql://localhost:5432/jobstream
-        -Dliquibase.username=jobstream_user
-        -Dliquibase.password=jobstream_password
-
     - name: Run Tests (includes automatic Liquibase update via Spring Boot)
       run: ./mvnw test
       env:
