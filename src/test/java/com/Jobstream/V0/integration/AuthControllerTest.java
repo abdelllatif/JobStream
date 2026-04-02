@@ -48,22 +48,19 @@ class AuthControllerTest extends AbstractIntegrationTest {
         request.setFirstName("John");
         request.setLastName("Doe");
 
-        // First registration
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        // Duplicate registration
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict()); // 409 DuplicateResourceException
+                .andExpect(status().isConflict());
     }
 
     @Test
     void shouldLoginExistingUser() throws Exception {
-        // Register first
         RegisterRequest registerRequest = new RegisterRequest();
         registerRequest.setEmail("login@example.com");
         registerRequest.setPassword("Password123!");
@@ -75,7 +72,6 @@ class AuthControllerTest extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isOk());
 
-        // Now log in
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("login@example.com");
         loginRequest.setPassword("Password123!");
@@ -98,6 +94,6 @@ class AuthControllerTest extends AbstractIntegrationTest {
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isUnauthorized()); // 401
+                .andExpect(status().isUnauthorized());
     }
 }

@@ -25,5 +25,6 @@
     <include file="db/changelog/V18__add_provider_id_to_users.sql"/>
     <include file="db/changelog/V19__fix_upload_urls_port.sql"/>
     <include file="db/changelog/migrations/V19_add_user_names.xml"/>
+    <include file="db/changelog/V20__add_domain_to_companies.sql"/>
 
 </databaseChangeLog>

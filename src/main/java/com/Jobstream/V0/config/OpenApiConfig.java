@@ -23,7 +23,7 @@ public class OpenApiConfig {
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("JobStream Team")
-                                .email("team@jobstream.com")))
+                                .email("haissoune@jobstream.com")))
                 .addSecurityItem(new SecurityRequirement().addList(BEARER_AUTH))
                 .components(new Components()
                         .addSecuritySchemes(BEARER_AUTH,

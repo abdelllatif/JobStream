@@ -78,6 +78,6 @@ class UserControllerTest extends AbstractIntegrationTest {
     void shouldFailIfNotAuthenticated() throws Exception {
         mockMvc.perform(get("/api/users/me")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized()); // 401
+                .andExpect(status().isUnauthorized());
     }
 }

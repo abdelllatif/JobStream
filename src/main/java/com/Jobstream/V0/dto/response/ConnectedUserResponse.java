@@ -10,10 +10,8 @@ import java.util.UUID;
 @Builder
 public class ConnectedUserResponse {
 
-    /** The connection row id (use this for disconnect/remove calls). */
     private UUID connectionId;
 
-    /** The other user's id. */
     private UUID userId;
 
     private String firstName;

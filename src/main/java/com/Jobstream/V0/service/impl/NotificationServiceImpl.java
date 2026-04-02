@@ -43,7 +43,6 @@ public class NotificationServiceImpl implements NotificationService {
         
         notification = notificationRepository.save(notification);
 
-        // Real-time push: new notification object + updated split unread counts
         NotificationResponse response = NotificationMapper.toResponse(notification);
         messagingTemplate.convertAndSendToUser(recipient.getEmail(), "/queue/notifications", response);
         messagingTemplate.convertAndSendToUser(
@@ -76,7 +75,6 @@ public class NotificationServiceImpl implements NotificationService {
         
         notification.setRead(true);
         NotificationResponse response = NotificationMapper.toResponse(notificationRepository.save(notification));
-        // Push updated split unread counts
         messagingTemplate.convertAndSendToUser(
                 notification.getUser().getEmail(), "/queue/notifications/count",
                 buildCounts(userId));
@@ -86,12 +84,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public int markAllAsRead(UUID userId) {
-        // Mark only NON-MESSAGE notifications as read (bell button action).
-        // MESSAGE notifications are only cleared by markMessageNotificationsAsRead.
         int updated = notificationRepository.markAllAsReadExcludingType(userId, NotificationType.MESSAGE);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        // notificationCount is now 0; messageCount stays the same
         long msgCount = notificationRepository.countByUserIdAndIsReadFalseAndType(userId, NotificationType.MESSAGE);
         messagingTemplate.convertAndSendToUser(
                 user.getEmail(), "/queue/notifications/count",
@@ -102,11 +97,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public int markMessageNotificationsAsRead(UUID userId) {
-        // Mark only MESSAGE-type notifications as read (messages panel action).
         int updated = notificationRepository.markAllAsReadByType(userId, NotificationType.MESSAGE);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-        // messageCount is now 0; notificationCount stays the same
         long notifCount = notificationRepository.countByUserIdAndIsReadFalseAndTypeNot(userId, NotificationType.MESSAGE);
         messagingTemplate.convertAndSendToUser(
                 user.getEmail(), "/queue/notifications/count",
@@ -126,7 +119,6 @@ public class NotificationServiceImpl implements NotificationService {
         return buildCounts(userId);
     }
 
-    // ── helpers ────────────────────────────────────────────────────────────────
 
     private NotificationCountResponse buildCounts(UUID userId) {
         long notifCount = notificationRepository

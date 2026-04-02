@@ -43,7 +43,6 @@ class AuthServiceImplTest {
 
     @Test
     void register_Success() {
-        // Arrange
         RegisterRequest request = new RegisterRequest();
         request.setEmail("test@example.com");
         request.setPassword("password");
@@ -58,10 +57,8 @@ class AuthServiceImplTest {
             return u;
         });
 
-        // Act
         UserResponse response = authService.register(request);
 
-        // Assert
         assertNotNull(response);
         assertEquals(request.getEmail(), response.getEmail());
         assertEquals(request.getFirstName(), response.getFirstName());
@@ -71,20 +68,17 @@ class AuthServiceImplTest {
 
     @Test
     void register_ThrowsDuplicateResourceException() {
-        // Arrange
         RegisterRequest request = new RegisterRequest();
         request.setEmail("test@example.com");
 
         when(userRepository.existsByEmail(request.getEmail())).thenReturn(true);
 
-        // Act & Assert
         assertThrows(DuplicateResourceException.class, () -> authService.register(request));
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
     void login_Success() {
-        // Arrange
         LoginRequest request = new LoginRequest();
         request.setEmail("test@example.com");
         request.setPassword("password");
@@ -96,10 +90,8 @@ class AuthServiceImplTest {
         when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
         when(jwtService.generateToken(user)).thenReturn("mockJwtToken");
 
-        // Act
         AuthResponse response = authService.login(request);
 
-        // Assert
         assertNotNull(response);
         assertEquals("mockJwtToken", response.getAccessToken());
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));

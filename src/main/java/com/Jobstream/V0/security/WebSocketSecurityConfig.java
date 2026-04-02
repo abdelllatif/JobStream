@@ -56,9 +56,6 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
                         }
                     }
 
-                    // Reject the CONNECT if authentication failed.
-                    // Without a Principal, convertAndSendToUser() cannot route messages
-                    // to this session — all real-time pushes would be silently dropped.
                     if (accessor.getUser() == null) {
                         log.warn("WebSocket CONNECT rejected: no valid JWT provided");
                         throw new MessageDeliveryException("Authentication required: provide a valid Bearer token in the STOMP CONNECT frame");

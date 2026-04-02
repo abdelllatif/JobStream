@@ -19,14 +19,11 @@ public interface NotificationService {
 
     NotificationResponse markAsRead(UUID notificationId, UUID userId);
 
-    /** Mark all non-MESSAGE notifications as read (notification-bell action). */
     int markAllAsRead(UUID userId);
 
-    /** Mark all MESSAGE notifications as read (messages-panel action). */
     int markMessageNotificationsAsRead(UUID userId);
 
     long countUnread(UUID userId);
 
-    /** Returns split unread counts: messageCount and notificationCount. */
     NotificationCountResponse getUnreadCounts(UUID userId);
 }

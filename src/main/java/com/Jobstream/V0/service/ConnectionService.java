@@ -17,7 +17,6 @@ public interface ConnectionService {
 
     void remove(UUID connectionId, UUID userId);
 
-    /** Returns the OTHER person in each accepted connection (not the current user). */
     List<ConnectedUserResponse> getMyConnections(UUID userId);
 
     List<ConnectionResponse> getPendingRequests(UUID userId);

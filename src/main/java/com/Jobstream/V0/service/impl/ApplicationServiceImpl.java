@@ -111,7 +111,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         notificationService.createNotification(application.getUser(), type, application.getId(), msg);
 
         ApplicationResponse updatedResponse = ApplicationMapper.toResponse(application);
-        // Broadcast real-time status change to the applicant
         messagingTemplate.convertAndSend(
                 "/topic/applications/" + application.getUser().getId(), updatedResponse);
 

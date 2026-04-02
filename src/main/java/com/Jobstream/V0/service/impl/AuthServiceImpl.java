@@ -14,6 +14,7 @@ import com.Jobstream.V0.exception.DuplicateResourceException;
 import com.Jobstream.V0.mapper.UserMapper;
 import com.Jobstream.V0.repository.UserRepository;
 import com.Jobstream.V0.service.AuthService;
+import com.Jobstream.V0.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserService userService;
 
     @Override
     @Transactional
@@ -42,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .role(Role.USER) // Default role
+                .role(Role.USER)
                 .provider(Provider.LOCAL)
                 .enabled(true)
                 .build();
@@ -59,6 +61,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
+        userService.userIsSuspend(request.getEmail());
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );

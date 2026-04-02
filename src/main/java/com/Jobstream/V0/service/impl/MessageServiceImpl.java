@@ -60,11 +60,9 @@ public class MessageServiceImpl implements MessageService {
 
         MessageResponse response = MessageMapper.toResponse(savedMessage);
 
-        // Real-time broadcast to all participants of the conversation
         messagingTemplate.convertAndSend(
                 "/topic/conversations/" + conversation.getId(), response);
 
-        // Notify other participants
         conversation.getParticipants().stream()
                 .filter(p -> !p.getUser().getId().equals(senderId))
                 .forEach(p -> notificationService.createNotification(
@@ -98,7 +96,6 @@ public class MessageServiceImpl implements MessageService {
             throw new UnauthorizedException("Not a participant");
         }
         int updated = messageRepository.markAllAsRead(conversationId, userId);
-        // Broadcast read-receipt so senders know their messages were read
         messagingTemplate.convertAndSend("/topic/conversations/" + conversationId + "/read",
                 Map.of("conversationId", conversationId.toString(), "readByUserId", userId.toString()));
         return updated;

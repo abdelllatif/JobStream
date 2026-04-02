@@ -13,7 +13,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        // Heartbeat scheduler prevents proxy/firewall from killing idle WebSocket connections
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(1);
         taskScheduler.setThreadNamePrefix("ws-heartbeat-");

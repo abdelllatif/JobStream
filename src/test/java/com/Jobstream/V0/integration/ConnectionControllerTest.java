@@ -74,7 +74,6 @@ class ConnectionControllerTest extends AbstractIntegrationTest {
     @Test
     @WithMockUser(username = "user2@example.com", roles = "USER")
     void shouldAcceptConnectionRequest() throws Exception {
-        // user1 sends request to user2
         com.Jobstream.V0.entity.Connection connection = com.Jobstream.V0.entity.Connection.builder()
                 .sender(user1)
                 .receiver(user2)
@@ -83,7 +82,6 @@ class ConnectionControllerTest extends AbstractIntegrationTest {
                 .build();
         connection = connectionRepository.save(connection);
 
-        // user2 accepts
         ResultActions response = mockMvc.perform(put("/api/connections/" + connection.getId() + "/accept")
                 .contentType(MediaType.APPLICATION_JSON));
 

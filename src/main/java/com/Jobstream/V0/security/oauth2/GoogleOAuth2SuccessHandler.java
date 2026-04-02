@@ -45,8 +45,20 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         String name = oAuth2User.getAttribute("name");
         String picture = oAuth2User.getAttribute("picture");
 
+        User existingUser = userRepository.findByEmail(email).orElse(null);
+        if (existingUser != null && !existingUser.isEnabled()) {
+            String suspendedUrl = UriComponentsBuilder.fromUriString(redirectUrl)
+                .queryParam("error", "suspended")
+                .queryParam("message", "Vous etes suspendu. Les admins ont vu quelque chose de suspect. Votre activite et vos applications sont encore actives. Veuillez attendre maximum 1 jour pour retirer la suspension.")
+                .build().toUriString();
+
+            log.warn("Blocked OAuth2 login for suspended user: {}", email);
+            getRedirectStrategy().sendRedirect(request, response, suspendedUrl);
+            return;
+        }
+
         User user = userRepository.findByEmail(email)
-                .map(existing -> linkGoogleToExistingUser(existing, providerId))
+            .map(existing -> linkGoogleToExistingUser(existing, providerId))
                 .orElseGet(() -> createOAuth2User(email, providerId, name, picture));
 
         String token = jwtService.generateToken(user);
@@ -61,13 +73,6 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    /**
-     * Called when a Google login arrives for an email that already exists in the DB.
-     * Scenarios:
-     *  - provider=LOCAL      → link Google → set providerId + provider=LOCAL_GOOGLE
-     *  - provider=GOOGLE     → already Google user, just update providerId if changed
-     *  - provider=LOCAL_GOOGLE → already linked, nothing to change
-     */
     private User linkGoogleToExistingUser(User existing, String providerId) {
         boolean needsSave = false;
 
@@ -107,7 +112,6 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
         User savedUser = userRepository.save(newUser);
 
-        // Initialize empty profile
         Profile profile = Profile.builder()
                 .user(savedUser)
                 .build();

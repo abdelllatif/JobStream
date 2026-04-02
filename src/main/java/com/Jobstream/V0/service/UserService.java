@@ -31,4 +31,6 @@ public interface UserService {
     boolean hasPassword(UUID userId);
 
     void setPassword(UUID userId, SetPasswordRequest request);
+
+    void userIsSuspend(String email);
 }

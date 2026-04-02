@@ -48,12 +48,11 @@ jobs:
 
     - name: Database Migrations (Liquibase Validate)
       # Validates liquibase changelogs to ensure they are valid.
-      # You can also use liquibase:update if you want it to run directly on the GitHub Actions DB.
-      run: ./mvnw liquibase:updateSQL
-      env:
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/jobstream
-        SPRING_DATASOURCE_USERNAME: jobstream_user
-        SPRING_DATASOURCE_PASSWORD: jobstream_password
+      run: >
+        ./mvnw liquibase:updateSQL
+        -Dliquibase.url=jdbc:postgresql://localhost:5432/jobstream
+        -Dliquibase.username=jobstream_user
+        -Dliquibase.password=jobstream_password
 
     - name: Run Tests (includes automatic Liquibase update via Spring Boot)
       run: ./mvnw test
@@ -66,9 +65,16 @@ jobs:
         SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/jobstream
         SPRING_DATASOURCE_USERNAME: jobstream_user
         SPRING_DATASOURCE_PASSWORD: jobstream_password
+        GOOGLE_CLIENT_ID: test-client-id
+        GOOGLE_CLIENT_SECRET: test-client-secret
+        JWT_SECRET: dGVzdFNlY3JldEtleUZvckpvYlN0cmVhbVRlc3RpbmdQdXJwb3Nlc09ubHkxMjM0NTY3ODkw
 
     - name: Build Application Package
       run: ./mvnw clean package -DskipTests
+      env:
+        GOOGLE_CLIENT_ID: placeholder
+        GOOGLE_CLIENT_SECRET: placeholder
+        JWT_SECRET: placeholder
 
     - name: Upload Artifact (Optional)
       uses: actions/upload-artifact@v4

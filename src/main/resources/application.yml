@@ -51,7 +51,6 @@ spring:
     pathmatch:
       use-suffix-pattern: false
 
-# ─── JWT ─────────────────────────────────────────────────────────────────────
 application:
   jwt:
     secret: ${JWT_SECRET}
@@ -64,14 +63,12 @@ application:
     storage-path: ${FILE_STORAGE_PATH:./uploads}
     base-url: ${FILE_BASE_URL:http://localhost:8081/uploads}
 
-# ─── Logging ─────────────────────────────────────────────────────────────────
 logging:
   level:
     com.Jobstream: DEBUG
     org.springframework.security: INFO
     org.springframework.web.socket: INFO
 
-# ─── OpenAPI / Swagger ───────────────────────────────────────────────────────
 springdoc:
   api-docs:
     path: /v3/api-docs

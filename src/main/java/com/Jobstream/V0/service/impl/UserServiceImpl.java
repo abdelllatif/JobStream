@@ -10,6 +10,7 @@ import com.Jobstream.V0.enums.Role;
 import com.Jobstream.V0.exception.BadRequestException;
 import com.Jobstream.V0.exception.ResourceNotFoundException;
 import com.Jobstream.V0.exception.UnauthorizedException;
+import com.Jobstream.V0.exception.UserSuspendException;
 import com.Jobstream.V0.mapper.UserMapper;
 import com.Jobstream.V0.repository.ConnectionRepository;
 import com.Jobstream.V0.repository.UserRepository;
@@ -132,7 +133,6 @@ public class UserServiceImpl implements UserService {
         }
         User user = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        // GOOGLE-only accounts have no password set
         if (user.getPassword() == null || user.getPassword().isBlank()) {
             throw new BadRequestException("This account uses Google login. Please login via Google.");
         }
@@ -170,5 +170,15 @@ public class UserServiceImpl implements UserService {
             user.setProvider(Provider.LOCAL_GOOGLE);
         }
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void userIsSuspend(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            if (!user.isEnabled()) {
+                throw new UserSuspendException("Vous etes suspendu. Les admins ont vu quelque chose de suspect. Votre activite et vos applications sont encore actives. Veuillez attendre maximum 1 jour pour retirer la suspension.");
+            }
+        });
     }
 }

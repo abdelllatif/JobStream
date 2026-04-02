@@ -7,19 +7,12 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
 
-/**
- * Stores the OAuth2 authorization request in a short-lived HttpOnly cookie
- * instead of the HTTP session. This is required because the app uses
- * SessionCreationPolicy.STATELESS, which prevents Spring Security from
- * persisting the authorization state between the initial redirect and the
- * Google callback, causing "authorization_request_not_found".
- */
 @Component
 public class HttpCookieOAuth2AuthorizationRequestRepository
         implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 
     public static final String OAUTH2_AUTH_REQUEST_COOKIE = "oauth2_auth_request";
-    private static final int COOKIE_EXPIRE_SECONDS = 180; // 3 minutes — plenty for OAuth2 round-trip
+    private static final int COOKIE_EXPIRE_SECONDS = 180;
 
     @Override
     public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {

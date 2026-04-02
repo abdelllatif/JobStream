@@ -58,8 +58,6 @@ public class SecurityConfig {
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/jobs/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/companies/**").permitAll()
                     .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
@@ -70,7 +68,6 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling(exc -> exc
-                    // Return 401 when the request has a missing/expired/invalid JWT token
                     .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             );
 

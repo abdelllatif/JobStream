@@ -141,7 +141,6 @@ public class ConnectionServiceImpl implements ConnectionService {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
-    /** Resolves which side of the connection IS NOT the current user and maps their info. */
     private ConnectedUserResponse toConnectedUser(Connection connection, UUID currentUserId) {
         User other = connection.getSender().getId().equals(currentUserId)
                 ? connection.getReceiver()

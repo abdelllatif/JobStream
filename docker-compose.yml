@@ -1,24 +1,22 @@
-version: '3.9'
-
 services:
   postgres:
     image: postgres:16-alpine
     container_name: jobstream_postgres
     environment:
-      POSTGRES_DB: ${DB_NAME:-jobstream}
-      POSTGRES_USER: ${DB_USERNAME:-jobstream_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-jobstream_password}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${DB_EXPOSE_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-jobstream_user} -d ${DB_NAME:-jobstream}"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - jobstream_net
+      - backend_net
 
   app:
     build: .
@@ -26,22 +24,31 @@ services:
     env_file:
       - .env
     environment:
+      APP_PORT: "8081"
       DB_HOST: postgres
-      DB_PORT: 5432
+      DB_PORT: "5432"
     ports:
-      - "${APP_PORT:-8081}:8081"
+      - "${APP_EXPOSE_PORT:-8081}:8081"
     volumes:
       - uploads_data:/app/uploads
     depends_on:
       postgres:
         condition: service_healthy
     networks:
-      - jobstream_net
+      backend_net:
+        aliases:
+          - jobstream-api
+      frontend_net:
+        aliases:
+          - jobstream-api
 
 volumes:
   postgres_data:
   uploads_data:
 
 networks:
-  jobstream_net:
+  backend_net:
+    driver: bridge
+  frontend_net:
+    name: ${FRONTEND_NETWORK_NAME:-jobstream_frontend_net}
     driver: bridge
