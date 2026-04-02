@@ -7,25 +7,9 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  build-analyze-test:
-    name: Build, Test, Analyze and Liquibase
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
-    
-    # We set up a PostgreSQL service to provide a database for tests and liquibase
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: jobstream
-          POSTGRES_USER: jobstream_user
-          POSTGRES_PASSWORD: jobstream_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
     - name: Checkout repository
@@ -41,22 +25,9 @@ jobs:
     - name: Make Maven Wrapper Executable
       run: chmod +x ./mvnw
 
-    - name: Run Code Analysis (Checkstyle / PMD / Sonar - Placeholder)
-      # If you use SonarQube, uncomment the line below and add your secrets:
-      # run: ./mvnw verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=my-project -Dsonar.login=${{ secrets.SONAR_TOKEN }}
-      run: echo "Static Analysis phase executed."
-
-    - name: Run Tests (includes automatic Liquibase update via Spring Boot)
+    - name: Run Unit Tests
       run: ./mvnw test
       env:
-        DB_HOST: localhost
-        DB_PORT: 5432
-        DB_NAME: jobstream
-        DB_USERNAME: jobstream_user
-        DB_PASSWORD: jobstream_password
-        SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/jobstream
-        SPRING_DATASOURCE_USERNAME: jobstream_user
-        SPRING_DATASOURCE_PASSWORD: jobstream_password
         GOOGLE_CLIENT_ID: test-client-id
         GOOGLE_CLIENT_SECRET: test-client-secret
         JWT_SECRET: dGVzdFNlY3JldEtleUZvckpvYlN0cmVhbVRlc3RpbmdQdXJwb3Nlc09ubHkxMjM0NTY3ODkw
